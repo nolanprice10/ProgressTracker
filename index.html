@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#121212">
+  <title>Progress Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (window.tailwind) tailwind.config = { darkMode: 'class', theme: { extend: { colors: { darkBg: '#121212', cardBg: '#1e1e1e', cardBorder: '#2d2d2d', accent: '#3b82f6', accentHover: '#2563eb' } } } };
+  </script>
+  <style>
+    :root{color-scheme:dark;--bg:#121212;--surface:#1e1e1e;--surface2:#252525;--border:#2d2d2d;--text:#f4f4f5;--muted:#a1a1aa;--accent:#3b82f6;--accent-hover:#2563eb;--track:#35353a}
+    :root:not(.dark){color-scheme:light;--bg:#f4f6fb;--surface:#fff;--surface2:#f5f6f9;--border:#e1e4eb;--text:#18181b;--muted:#686e7b;--track:#e5e7eb}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}button,input,select,textarea{color:inherit}input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;min-width:0}input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}textarea{width:100%;resize:vertical}h1,h2,h3,p{margin:0}h1{font-size:clamp(28px,4vw,40px);letter-spacing:-.04em;line-height:1.15}h2{font-size:21px;letter-spacing:-.02em}h3{font-size:16px}.muted{color:var(--muted)}.small{font-size:12px}.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#80aaff}.row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}.wrap{flex-wrap:wrap}.stack{display:grid;gap:16px}.grow{flex:1}.hidden{display:none!important}.btn{border:1px solid var(--border);border-radius:9px;background:var(--surface2);padding:8px 12px;font-weight:650;white-space:nowrap}.btn:hover{border-color:#666}.btn.primary{background:var(--accent);border-color:var(--accent);color:white}.btn.primary:hover{background:var(--accent-hover)}.btn.ghost{background:transparent}.btn.danger{color:#fb7185}.icon-btn{width:36px;height:36px;padding:0;display:inline-grid;place-items:center}.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px}.topbar{border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:10}.top-inner{max-width:1320px;margin:auto;padding:14px 28px;display:flex;gap:24px;align-items:center}.brand{font-weight:800;letter-spacing:-.03em;font-size:17px;white-space:nowrap}.brand-mark{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--accent);color:white;margin-right:8px}.nav{display:flex;gap:4px;flex:1}.nav button{background:transparent;border:0;color:var(--muted);padding:9px 12px;border-radius:8px;font-weight:650}.nav button.active{background:var(--surface2);color:var(--text)}.badge{background:var(--accent);color:#fff;border-radius:20px;padding:2px 7px;font-size:11px;margin-left:4px}.save{font-size:12px;color:var(--muted)}.save:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#34d399;margin-right:6px}.container{max-width:1320px;margin:auto;padding:40px 28px 80px}.view{animation:appear .24s ease}@keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}.hero{margin-bottom:28px}.hero p{margin-top:8px}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:22px 0}.toolbar input[type=search]{flex:1;min-width:200px}.segmented{display:flex;padding:3px;background:var(--surface);border:1px solid var(--border);border-radius:10px;gap:2px}.segmented button{border:0;background:transparent;color:var(--muted);border-radius:7px;padding:6px 10px}.segmented button.active{background:var(--surface2);color:var(--text)}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}.set-card,.section-card{padding:20px}.set-card{display:flex;flex-direction:column;gap:16px;transition:transform .2s,border-color .2s}.set-card:hover{transform:translateY(-3px);border-color:#555}.set-card h3{font-size:18px}.set-card .description{min-height:42px}.progress{height:8px;border-radius:20px;background:var(--track);overflow:hidden}.progress span{display:block;height:100%;background:var(--accent);border-radius:inherit;transition:width .3s}.stat-line{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:7px}.set-footer{margin-top:auto;border-top:1px solid var(--border);padding-top:14px}.empty{text-align:center;padding:50px 20px;color:var(--muted)}.banner{padding:18px 20px;border-color:#315386;background:linear-gradient(110deg,rgba(59,130,246,.13),var(--surface));margin-bottom:28px}.banner p{margin-top:4px}.dashboard{padding:24px;margin:22px 0}.dashboard .big-number{font-size:36px;font-weight:800;letter-spacing:-.04em}.dashboard .progress{height:10px;margin:16px 0}.category{margin-top:28px}.category-head{margin-bottom:12px}.section-card{display:grid;gap:15px}.section-card.complete{border-color:#315e4c}.section-actions{display:flex;gap:6px;flex-wrap:wrap}.section-actions .btn{padding:6px 10px}.locked{color:#6ee7b7;font-weight:700;font-size:12px}.list .grid{grid-template-columns:1fr}.list .set-card,.list .section-card{display:flex;align-items:center;gap:20px}.list .set-card>*,.list .section-card>*{flex:1;min-width:0}.list .set-card .description{min-height:0}.list .set-footer{border:0;padding:0;margin:0}.group-title{margin:24px 0 12px}.inline-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.inline-form input{flex:1;min-width:90px}.inline-form input[type=number]{max-width:110px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0}.metric{padding:18px}.metric strong{display:block;font-size:25px}.metric span{color:var(--muted);font-size:12px}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}.trophy{position:relative;overflow:hidden;aspect-ratio:2.5/3.5;border:1px solid var(--card-color);border-radius:14px;background:linear-gradient(145deg,var(--card-bg),#15151d 70%);padding:15px;display:flex;flex-direction:column;text-align:left;color:#fff;box-shadow:0 10px 24px #0004;transition:transform .25s,box-shadow .25s}.trophy:hover{transform:translateY(-7px);box-shadow:0 18px 30px #0007}.trophy:after{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(115deg,transparent 25%,#ffffff22 48%,transparent 65%);transform:translateX(-120%);transition:transform .6s}.trophy:hover:after{transform:translateX(120%)}.trophy.bronze{--card-color:#bc835a;--card-bg:#5c382c}.trophy.silver{--card-color:#bec9d6;--card-bg:#4a586d}.trophy.gold{--card-color:#e6c46e;--card-bg:#6e5526}.trophy.mythic{--card-color:#d5a5ff;--card-bg:#563b78;background:linear-gradient(125deg,#47315e,#16485e,#6d4166,#574b25);background-size:300% 300%;animation:holo 6s ease infinite}@keyframes holo{50%{background-position:100% 100%}}.trophy .card-top,.trophy .card-bottom{display:flex;justify-content:space-between;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.trophy .card-symbol{font-size:55px;text-align:center;margin:auto}.trophy .card-title{font-size:17px;font-weight:800;line-height:1.2;margin-bottom:5px}.trophy .card-set{font-size:11px;color:#ffffffb8;margin-bottom:14px}.deck{display:flex;align-items:center;overflow-x:auto;padding:35px 20px 25px}.deck .trophy{width:190px;min-width:190px;margin-right:-95px;transform:rotate(-4deg);transform-origin:bottom center}.deck .trophy:last-child{margin-right:0}.deck .trophy:hover{transform:translateY(-25px) rotate(0);z-index:2}.binder{width:100%;border-collapse:collapse}.binder th,.binder td{text-align:left;padding:13px;border-bottom:1px solid var(--border)}.binder th{color:var(--muted);font-size:12px}.binder button{background:none;border:0;color:var(--text);text-align:left;font-weight:700}.table-wrap{overflow:auto}.modal-backdrop{position:fixed;inset:0;z-index:20;background:#000b;display:grid;place-items:center;padding:20px}.modal{width:min(640px,100%);max-height:90vh;overflow:auto;padding:24px;box-shadow:0 20px 70px #0008}.modal h2{margin-bottom:8px}.modal label{display:grid;gap:6px;margin-top:14px;font-weight:650}.modal .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;flex-wrap:wrap}.preview{padding:12px;background:var(--surface2);border-radius:8px;margin-top:12px;max-height:180px;overflow:auto}.toast{position:fixed;right:20px;bottom:20px;z-index:40;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;box-shadow:0 10px 30px #0006}.confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+    @media(max-width:700px){.top-inner{padding:12px 16px;gap:8px;flex-wrap:wrap}.brand{flex:1}.nav{order:3;flex-basis:100%}.nav button{flex:1}.container{padding:28px 16px 60px}.hero.row,.banner.row{align-items:flex-start;flex-direction:column}.toolbar>*{max-width:100%}.list .set-card,.list .section-card{display:grid}.cards{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}}
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="top-inner">
+    <div class="brand"><span class="brand-mark">✦</span>Progress Tracker</div>
+    <nav class="nav" aria-label="Main navigation"><button data-action="tab" data-value="sets" id="nav-sets">Master Sets</button><button data-action="tab" data-value="trophies" id="nav-trophies">Trophy Room <span class="badge" id="trophy-count">0</span></button></nav>
+    <button class="btn ghost icon-btn" data-action="theme" id="theme-button" aria-label="Toggle theme">☼</button>
+    <button class="btn ghost save" data-action="backup" id="save-status">Saved just now</button>
+  </div></header>
+  <main class="container" id="app"></main>
+  <div id="modal-root"></div><div id="toast-root" aria-live="polite"></div><canvas class="confetti" id="confetti"></canvas>
+  <script>
+    'use strict';
+    const STATE_KEY = 'progressTracker.state.v1', VISIT_KEY = 'progressTracker.lastVisit.v1';
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const id = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+    const now = () => new Date().toISOString();
+    const number = (value, fallback = 0) => Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : fallback;
+    const clamp = (value, total) => Math.min(total, number(value));
+    const section = (name, total) => ({id:id(), name, completed:0, total, trophyAwarded:false, completedAt:null, updatedAt:now()});
+    const category = (name, sections = []) => ({id:id(), name, completedCelebrated:false, updatedAt:now(), sections});
+    const masterSet = (title, description, categories = []) => ({id:id(), title, description, completedOverride:null, targetOverride:null, completedAwarded:false, completedAt:null, updatedAt:now(), categories});
+    function defaults() {
+      return {activeTab:'sets', activeMasterSetId:null, lastActiveMasterSetId:null, lastSavedAt:null, lastSessionAt:null, dismissedWelcomeBanner:false, theme:'dark', searchQuery:'', sortBy:'custom', viewMode:'grid', sectionFilter:'all', sectionSort:'default', sectionViewMode:'grid', rarityFilter:'all', setFilter:'all', trophySearch:'', trophySort:'newest', trophyGroupBy:'none', trophyViewMode:'grid', trophies:[], masterSets:[
+        masterSet('AP Microeconomics Units 4–6', 'Track your progress through market structures, factor markets, and market failure.', [
+          category('Unit 4 · Imperfect Competition', [section('Introduction to Imperfectly Competitive Markets',4),section('Monopoly',6),section('Price Discrimination',4),section('Monopolistic Competition',5),section('Oligopoly and Game Theory',5)]),
+          category('Unit 5 · Factor Markets', [section('Introduction to Factor Markets',4),section('Changes in Factor Demand and Supply',4),section('Profit-Maximizing Behavior in Factor Markets',5)]),
+          category('Unit 6 · Market Failure', [section('Socially Efficient and Inefficient Market Outcomes',5),section('Externalities and Public Policy',5),section('Public and Private Goods',5)])
+        ]),
+        masterSet('45-Question Practice Set', 'A place to track your practice questions.', [category('Practice', [section('Practice Questions',45)])])
+      ]};
+    }
+    function normalize(raw) {
+      const base = defaults(), source = raw && typeof raw === 'object' ? raw : {};
+      const state = {...base, ...source};
+      state.masterSets = (Array.isArray(source.masterSets) ? source.masterSets : base.masterSets).filter(s => s && typeof s === 'object').map(s => ({
+        ...s, id:String(s.id || id()), title:String(s.title || 'Untitled set'), description:String(s.description || ''),
+        completedOverride:s.completedOverride == null ? null : number(s.completedOverride), targetOverride:s.targetOverride == null ? null : Math.max(1, number(s.targetOverride, 1)),
+        completedAwarded:!!s.completedAwarded, completedAt:s.completedAt || null, updatedAt:s.updatedAt || now(),
+        categories:(Array.isArray(s.categories) ? s.categories : []).filter(c => c && typeof c === 'object').map(c => ({
+          ...c, id:String(c.id || id()), name:String(c.name || 'Untitled category'), completedCelebrated:!!c.completedCelebrated, updatedAt:c.updatedAt || now(),
+          sections:(Array.isArray(c.sections) ? c.sections : []).filter(x => x && typeof x === 'object').map(x => {
+            const total = Math.max(1, number(x.total, 1));
+            return {...x, id:String(x.id || id()), name:String(x.name || 'Untitled section'), total, completed:clamp(x.completed, total), trophyAwarded:!!x.trophyAwarded, completedAt:x.completedAt || null, updatedAt:x.updatedAt || now()};
+          })
+        }))
+      }));
+      state.trophies = (Array.isArray(source.trophies) ? source.trophies : []).filter(t => t && typeof t === 'object').map(t => ({...t, id:String(t.id || id()), points:number(t.points), rarity:['bronze','silver','gold','mythic'].includes(t.rarity) ? t.rarity : 'bronze'}));
+      if (!['sets','trophies'].includes(state.activeTab)) state.activeTab = 'sets';
+      if (!['dark','light'].includes(state.theme)) state.theme = 'dark';
+      if (!state.masterSets.some(s => s.id === state.activeMasterSetId)) state.activeMasterSetId = null;
+      return state;
+    }
+    let stored = null, previousVisit = null;
+    try { stored = JSON.parse(localStorage.getItem(STATE_KEY)); previousVisit = localStorage.getItem(VISIT_KEY); } catch (e) { console.warn('Unable to read saved progress', e); }
+    let state = normalize(stored), saving = false, savingTimer, toastTimer;
+    state.lastSessionAt = stored ? (previousVisit || state.lastSavedAt || null) : null;
+    try { localStorage.setItem(VISIT_KEY, now()); } catch (e) { console.warn('Unable to save visit', e); }
+    function save() {
+      state.lastSavedAt = now(); saving = true;
+      try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (e) { console.warn('Unable to save progress', e); toast('Unable to save locally. Export a backup if possible.'); }
+      updateSave(); clearTimeout(savingTimer); savingTimer = setTimeout(() => { saving = false; updateSave(); }, 500);
+    }
+    function relative(date) {
+      const ms = Date.now() - new Date(date).getTime();
+      if (!date || !Number.isFinite(ms) || ms < 60000) return 'just now';
+      const minutes = Math.floor(ms / 60000);
+      if (minutes < 60) return minutes + 'm ago';
+      if (minutes < 1440) return Math.floor(minutes / 60) + 'h ago';
+      return Math.floor(minutes / 1440) + 'd ago';
+    }
+    function updateSave() {
+      const el = $('#save-status'); if (!el) return;
+      el.textContent = saving ? 'Saving…' : 'Saved ' + relative(state.lastSavedAt);
+      el.title = 'Storage key: ' + STATE_KEY + '\nLast saved: ' + (state.lastSavedAt ? new Date(state.lastSavedAt).toLocaleString() : 'Not yet saved');
+    }
+    function persist() { try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); localStorage.setItem(VISIT_KEY, now()); } catch (e) { console.warn('Unable to save progress', e); } }
+    window.addEventListener('beforeunload', persist); window.addEventListener('pagehide', persist);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) persist(); });
+    window.addEventListener('storage', event => { if (event.key === STATE_KEY && event.newValue) { try { state = normalize(JSON.parse(event.newValue)); render(); } catch (e) { console.warn('Unable to load updated progress', e); } } });
+    setInterval(updateSave, 30000);
+    function sums(set) { return set.categories.flatMap(c => c.sections).reduce((a,s) => ({completed:a.completed+s.completed,total:a.total+s.total}), {completed:0,total:0}); }
+    function totals(set) { const auto = sums(set); return {completed:set.completedOverride ?? auto.completed,total:set.targetOverride ?? auto.total}; }
+    function percent(completed, total) { return total > 0 ? Math.min(100, Math.round(completed / total * 100)) : 0; }
+    function isDone(completed, total) { return total > 0 && completed >= total; }
+    function points() { return state.trophies.reduce((sum,t) => sum + number(t.points), 0); }
+    function findSet(setId) { return state.masterSets.find(s => s.id === setId); }
+    function findCategory(set, categoryId) { return set && set.categories.find(c => c.id === categoryId); }
+    function findSection(cat, sectionId) { return cat && cat.sections.find(s => s.id === sectionId); }
+    function toast(message) { const root = $('#toast-root'); root.innerHTML = '<div class="toast">'+esc(message)+'</div>'; clearTimeout(toastTimer); toastTimer = setTimeout(() => root.innerHTML = '', 3500); }
+    function celebrate() {
+      const canvas = $('#confetti'), ctx = canvas.getContext('2d'); if (!ctx) return;
+      canvas.width = innerWidth * devicePixelRatio; canvas.height = innerHeight * devicePixelRatio; ctx.scale(devicePixelRatio, devicePixelRatio);
+      const bits = Array.from({length:75}, () => ({x:innerWidth/2,y:innerHeight/2,vx:(Math.random()-.5)*14,vy:-Math.random()*12-3,color:['#60a5fa','#fbbf24','#f472b6','#34d399'][Math.floor(Math.random()*4)],life:70+Math.random()*30}));
+      function frame() { ctx.clearRect(0,0,innerWidth,innerHeight); bits.forEach(b => { b.x+=b.vx; b.y+=b.vy; b.vy+=.25; b.life--; ctx.fillStyle=b.color; ctx.fillRect(b.x,b.y,6,6); }); if(bits.some(b=>b.life>0)) requestAnimationFrame(frame); else ctx.clearRect(0,0,innerWidth,innerHeight); } frame();
+    }
+    function achievements(set, cat, sec) {
+      if (sec && isDone(sec.completed,sec.total) && !sec.trophyAwarded) {
+        const rarity = sec.total <= 3 ? 'bronze' : sec.total <= 6 ? 'silver' : 'gold';
+        state.trophies.push({id:id(), title:sec.name, masterSetId:set.id, masterSetTitle:set.title, categoryId:cat.id, sectionId:sec.id, rarity, rank:rarity === 'bronze' ? ['I','II','III'][sec.total-1] : rarity === 'silver' ? 'Q' : 'K', suit:rarity === 'bronze' ? 'club' : rarity === 'silver' ? 'diamond' : 'spade', points:sec.total, unlockedAt:now()});
+        sec.trophyAwarded = true; sec.completedAt = now(); celebrate(); toast('Section complete! Trophy card unlocked.');
+      }
+      if (cat && cat.sections.length && cat.sections.every(s => isDone(s.completed,s.total)) && !cat.completedCelebrated) { cat.completedCelebrated = true; celebrate(); toast('Category complete: ' + cat.name); }
+      const t = totals(set);
+      if (isDone(t.completed,t.total) && !set.completedAwarded) {
+        state.trophies.push({id:id(), title:'Master Sovereign', masterSetId:set.id, masterSetTitle:set.title, rarity:'mythic', rank:'crown', suit:'crown', points:25, unlockedAt:now()});
+        set.completedAwarded = true; set.completedAt = now(); celebrate(); toast('Master set complete! Mythic card unlocked.');
+      }
+    }
+    function touch(set, cat, sec) { const date = now(); if (set) set.updatedAt=date; if (cat) cat.updatedAt=date; if (sec) sec.updatedAt=date; }
+    function changeSection(set, cat, sec, amount) {
+      if (!sec || isDone(sec.completed,sec.total)) return;
+      sec.completed = Math.min(sec.total, Math.max(0, sec.completed + amount)); touch(set,cat,sec); achievements(set,cat,sec); save(); render();
+    }
+    function bar(completed,total) { return '<div class="stat-line"><span>'+esc(completed)+' / '+esc(total)+' questions</span><strong>'+percent(completed,total)+'%</strong></div><div class="progress"><span style="width:'+percent(completed,total)+'%"></span></div>'; }
+    function options(values, selected) { return values.map(([value,label]) => '<option value="'+esc(value)+'"'+(selected===value?' selected':'')+'>'+esc(label)+'</option>').join(''); }
+    function select(name, values, selected, label) { return '<select data-control="'+name+'" aria-label="'+esc(label)+'">'+options(values,selected)+'</select>'; }
+    function segment(name, selected, values) { return '<div class="segmented">'+values.map(([value,label])=>'<button data-action="control" data-control="'+name+'" data-value="'+value+'" class="'+(selected===value?'active':'')+'" aria-pressed="'+(selected===value)+'">'+label+'</button>').join('')+'</div>'; }
+    function setCard(set) {
+      const t=totals(set), count=set.categories.reduce((n,c)=>n+c.sections.length,0);
+      return '<article class="panel set-card"><div><div class="eyebrow">Master set</div><h3>'+esc(set.title)+'</h3></div><p class="muted description">'+esc(set.description || 'Your learning journey starts here.')+'</p><div>'+bar(t.completed,t.total)+'</div><div class="row between set-footer"><span class="muted small">'+count+' sections</span><div class="row"><button class="btn ghost" data-action="inline-set" data-set="'+esc(set.id)+'">Edit</button><button class="btn primary" data-action="open-set" data-set="'+esc(set.id)+'">Open →</button></div></div></article>';
+    }
+    function homepage() {
+      const query=String(state.searchQuery).toLowerCase().trim();
+      let sets=state.masterSets.filter(s=>[s.title,s.description,...s.categories.flatMap(c=>[c.name,...c.sections.map(x=>x.name)])].some(v=>String(v).toLowerCase().includes(query)));
+      const progress=s=>{const t=totals(s);return t.total ? t.completed/t.total : 0;};
+      const sorts={progressDesc:(a,b)=>progress(b)-progress(a),progressAsc:(a,b)=>progress(a)-progress(b),questions:(a,b)=>totals(b).total-totals(a).total,alpha:(a,b)=>a.title.localeCompare(b.title),inProgress:(a,b)=>(progress(b)>0&&progress(b)<1)-(progress(a)>0&&progress(a)<1),completed:(a,b)=>(progress(b)>=1)-(progress(a)>=1)};
+      if(sorts[state.sortBy]) sets.sort(sorts[state.sortBy]);
+      const previous = state.lastSessionAt && !state.dismissedWelcomeBanner ? '<div class="panel banner row between"><div><strong>Welcome back — Progress restored</strong><p class="muted">Last visit '+esc(new Date(state.lastSessionAt).toLocaleString())+' · '+state.masterSets.reduce((n,s)=>n+totals(s).completed,0)+' questions completed · '+points()+' trophy points</p></div><div class="row">'+(findSet(state.lastActiveMasterSetId)?'<button class="btn primary" data-action="open-set" data-set="'+esc(state.lastActiveMasterSetId)+'">Resume</button>':'')+'<button class="btn ghost" data-action="dismiss">Dismiss</button></div></div>' : '';
+      let content = '<div class="grid">'+sets.map(setCard).join('')+'</div>';
+      if(state.viewMode==='grouped') content = [['In progress',s=>progress(s)>0&&progress(s)<1],['Not started',s=>progress(s)===0],['Completed',s=>progress(s)>=1]].map(([label,filter])=>{const items=sets.filter(filter);return items.length?'<h2 class="group-title">'+label+'</h2><div class="grid">'+items.map(setCard).join('')+'</div>':'';}).join('');
+      return previous+'<div class="hero row between"><div><div class="eyebrow">Your learning dashboard</div><h1>Master Sets</h1><p class="muted">Every question is a step forward. Keep going.</p></div><div class="row wrap"><button class="btn" data-action="import">⇩ Import list</button><button class="btn primary" data-action="new-set">+ New master set</button></div></div><div class="toolbar"><input type="search" data-control="searchQuery" placeholder="Search sets, categories, or sections…" value="'+esc(state.searchQuery)+'" aria-label="Search master sets">'+select('sortBy',[['custom','Custom order'],['progressDesc','Progress: high to low'],['progressAsc','Progress: low to high'],['questions','Most questions'],['alpha','Alphabetical A to Z'],['inProgress','In progress first'],['completed','Completed first']],state.sortBy,'Sort master sets')+segment('viewMode',state.viewMode,[['grid','Grid'],['list','List'],['grouped','Status']])+'</div><div class="'+(state.viewMode==='list'?'list':'')+'">'+(sets.length?content:'<div class="panel empty">No master sets found. Create or import one to get started.</div>')+'</div>';
+    }
+    function sectionCard(set,cat,sec) {
+      const done=isDone(sec.completed,sec.total), attrs=' data-set="'+esc(set.id)+'" data-category="'+esc(cat.id)+'" data-section="'+esc(sec.id)+'"';
+      return '<article class="panel section-card '+(done?'complete':'')+'"><div class="row between"><h3>'+esc(sec.name)+'</h3><button class="btn ghost" data-action="edit-section"'+attrs+'>Edit</button></div><div>'+bar(sec.completed,sec.total)+'</div>'+(done?'<div class="locked">✓ 100% completed · Locked</div>':'<div class="section-actions"><button class="btn" data-action="count" data-value="-1"'+attrs+' aria-label="Decrease '+esc(sec.name)+'">−</button><button class="btn" data-action="count" data-value="1"'+attrs+' aria-label="Increase '+esc(sec.name)+'">+1</button><button class="btn" data-action="count" data-value="5"'+attrs+'>+5</button><button class="btn" data-action="count" data-value="'+sec.total+'"'+attrs+'>Complete</button></div>')+'</article>';
+    }
+    function detail(set) {
+      const t=totals(set), auto=sums(set), differs=(set.completedOverride!==null&&set.completedOverride!==auto.completed)||(set.targetOverride!==null&&set.targetOverride!==auto.total);
+      const sorters={incomplete:(a,b)=>Number(isDone(a.completed,a.total))-Number(isDone(b.completed,b.total)),progressAsc:(a,b)=>a.completed/a.total-b.completed/b.total,progressDesc:(a,b)=>b.completed/b.total-a.completed/a.total,questions:(a,b)=>b.total-a.total,alpha:(a,b)=>a.name.localeCompare(b.name)};
+      const categories=set.categories.map(cat=>{
+        let sections=cat.sections.filter(s=>state.sectionFilter==='all'||(state.sectionFilter==='completed'?isDone(s.completed,s.total):!isDone(s.completed,s.total)));
+        if(sorters[state.sectionSort]) sections.sort(sorters[state.sectionSort]);
+        return '<section class="category"><div class="row between category-head wrap"><div><div class="eyebrow">Category</div><h2>'+esc(cat.name)+'</h2></div><div class="row"><button class="btn ghost" data-action="edit-category" data-set="'+esc(set.id)+'" data-category="'+esc(cat.id)+'">Edit</button><button class="btn" data-action="new-section" data-set="'+esc(set.id)+'" data-category="'+esc(cat.id)+'">+ Section</button></div></div><div class="grid">'+sections.map(sec=>sectionCard(set,cat,sec)).join('')+'</div>'+(sections.length?'':'<p class="muted small">No sections match this filter.</p>')+'</section>';
+      }).join('');
+      return '<button class="btn ghost" data-action="back">← All master sets</button><div class="panel dashboard"><div class="row between wrap"><div><div class="eyebrow">Master set progress</div><h1>'+esc(set.title)+'</h1><p class="muted">'+esc(set.description)+'</p></div><div class="row"><button class="btn" data-action="inline-set" data-set="'+esc(set.id)+'">Edit set</button>'+(differs?'<button class="btn" data-action="sync" data-set="'+esc(set.id)+'">Sync to Auto-Sum</button>':'')+'</div></div><div class="progress"><span style="width:'+percent(t.completed,t.total)+'%"></span></div><div class="row between wrap"><div><span class="big-number">'+percent(t.completed,t.total)+'%</span> <span class="muted">complete</span></div><div class="muted">'+t.completed+' completed / '+t.total+' target questions</div></div></div><div class="row between wrap"><div><h2>Sections</h2><p class="muted">Build momentum, one question at a time.</p></div><button class="btn primary" data-action="new-category" data-set="'+esc(set.id)+'">+ Category</button></div><div class="toolbar">'+select('sectionFilter',[['all','All sections'],['incomplete','Incomplete'],['completed','Completed']],state.sectionFilter,'Filter sections')+select('sectionSort',[['default','Default order'],['incomplete','Incomplete first'],['progressAsc','Progress: low to high'],['progressDesc','Progress: high to low'],['questions','Most questions'],['alpha','Alphabetical']],state.sectionSort,'Sort sections')+segment('sectionViewMode',state.sectionViewMode,[['grid','Cards'],['list','Checklist']])+'</div><div class="'+(state.sectionViewMode==='list'?'list':'')+'">'+(categories||'<div class="panel empty">Add a category to start tracking sections.</div>')+'</div>';
+    }
+    const suits={club:'♣',diamond:'♦',spade:'♠',crown:'♛'};
+    function trophyCard(t) { return '<button class="trophy '+esc(t.rarity)+'" data-action="inspect" data-trophy="'+esc(t.id)+'"><span class="card-top"><span>'+esc(t.rank || '')+'</span><span>'+esc(t.rarity)+'</span></span><span class="card-symbol">'+(suits[t.suit]||'✦')+'</span><span class="card-title">'+esc(t.title)+'</span><span class="card-set">'+esc(t.masterSetTitle || 'Master set')+'</span><span class="card-bottom"><span>'+esc(t.points)+' points</span><span>'+esc(t.rank || '')+'</span></span></button>'; }
+    function trophyRoom() {
+      let items=state.trophies.filter(t=>(state.rarityFilter==='all'||t.rarity===state.rarityFilter)&&(state.setFilter==='all'||t.masterSetId===state.setFilter)&&[t.title,t.masterSetTitle,t.rarity].some(x=>String(x||'').toLowerCase().includes(String(state.trophySearch).toLowerCase().trim())));
+      const rarity={bronze:1,silver:2,gold:3,mythic:4};
+      const sorters={newest:(a,b)=>String(b.unlockedAt||'').localeCompare(String(a.unlockedAt||'')),rarity:(a,b)=>rarity[b.rarity]-rarity[a.rarity],points:(a,b)=>b.points-a.points,title:(a,b)=>String(a.title||'').localeCompare(String(b.title||'')),set:(a,b)=>String(a.masterSetTitle||'').localeCompare(String(b.masterSetTitle||''))};
+      items.sort(sorters[state.trophySort]||sorters.newest);
+      const display=group=>state.trophyViewMode==='binder'?'<div class="panel table-wrap"><table class="binder"><thead><tr><th>Card</th><th>Master set</th><th>Rarity</th><th>Points</th></tr></thead><tbody>'+group.map(t=>'<tr><td><button data-action="inspect" data-trophy="'+esc(t.id)+'">'+esc(t.title)+'</button></td><td>'+esc(t.masterSetTitle)+'</td><td>'+esc(t.rarity)+'</td><td>'+t.points+'</td></tr>').join('')+'</tbody></table></div>':'<div class="'+(state.trophyViewMode==='deck'?'deck':'cards')+'">'+group.map(trophyCard).join('')+'</div>';
+      let content=display(items);
+      if(state.trophyGroupBy!=='none') { const groups=new Map(); items.forEach(t=>{const key=state.trophyGroupBy==='rarity'?t.rarity:(t.masterSetTitle||'Unknown set'); if(!groups.has(key)) groups.set(key,[]); groups.get(key).push(t);}); content=Array.from(groups,([label,group])=>'<h2 class="group-title">'+esc(label)+'</h2>'+display(group)).join(''); }
+      const setOptions=[['all','All master sets'],...Array.from(new Map([...state.masterSets.map(s=>[s.id,s.title]),...state.trophies.map(t=>[t.masterSetId,t.masterSetTitle])]).entries()).filter(([key])=>key)];
+      return '<div class="hero"><div class="eyebrow">Celebrate your progress</div><h1>Trophy Room</h1><p class="muted">A collection of milestones you earned along the way.</p></div><div class="metrics"><div class="panel metric"><strong>'+points()+'</strong><span>Total points</span></div><div class="panel metric"><strong>'+state.trophies.length+'</strong><span>Cards unlocked</span></div>'+['bronze','silver','gold','mythic'].map(r=>'<div class="panel metric"><strong>'+state.trophies.filter(t=>t.rarity===r).length+'</strong><span>'+r[0].toUpperCase()+r.slice(1)+'</span></div>').join('')+'</div><div class="toolbar"><input type="search" data-control="trophySearch" placeholder="Search your cards…" value="'+esc(state.trophySearch)+'" aria-label="Search trophies">'+select('rarityFilter',[['all','All rarities'],...['bronze','silver','gold','mythic'].map(r=>[r,r[0].toUpperCase()+r.slice(1)])],state.rarityFilter,'Filter rarity')+select('setFilter',setOptions,state.setFilter,'Filter master set')+select('trophySort',[['newest','Newest unlocked'],['rarity','Highest rarity'],['points','Most points'],['title','Card title'],['set','Master set name']],state.trophySort,'Sort trophies')+select('trophyGroupBy',[['none','No grouping'],['rarity','Group by rarity'],['set','Group by master set']],state.trophyGroupBy,'Group trophies')+segment('trophyViewMode',state.trophyViewMode,[['grid','Showcase'],['deck','Deck'],['binder','Binder']])+'</div>'+(items.length?content:'<div class="panel empty">No cards here yet. Complete a section to earn your first trophy.</div>');
+    }
+    function render() {
+      document.documentElement.classList.toggle('dark',state.theme==='dark'); $('#theme-button').textContent=state.theme==='dark'?'☼':'☾';
+      $('#nav-sets').classList.toggle('active',state.activeTab==='sets'); $('#nav-trophies').classList.toggle('active',state.activeTab==='trophies'); $('#trophy-count').textContent=state.trophies.length;
+      const set=findSet(state.activeMasterSetId); $('#app').innerHTML='<div class="view">'+(state.activeTab==='trophies'?trophyRoom():set?detail(set):homepage())+'</div>'; updateSave();
+    }
+    function modal(title, content) { $('#modal-root').innerHTML='<div class="modal-backdrop"><div class="panel modal" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><div class="row between"><h2>'+esc(title)+'</h2><button class="btn ghost icon-btn" data-action="close-modal" aria-label="Close">✕</button></div>'+content+'</div></div>'; }
+    function closeModal() { $('#modal-root').innerHTML=''; }
+    function formActions() { return '<div class="actions"><button type="button" class="btn" data-action="close-modal">Cancel</button><button class="btn primary" type="submit">Save</button></div>'; }
+    function setForm(set) {
+      modal(set?'Edit master set':'New master set','<form data-form="set" data-set="'+esc(set?.id||'')+'"><label>Title<input name="title" required maxlength="200" value="'+esc(set?.title||'')+'"></label><label>Description<textarea name="description" rows="2">'+esc(set?.description||'')+'</textarea></label>'+(set?'<p class="muted small" style="margin-top:14px">Leave totals blank to use the sum of your sections.</p><div class="row"><label class="grow">Completed override<input name="completed" type="number" min="0" step="1" value="'+esc(set.completedOverride??'')+'"></label><label class="grow">Target override<input name="target" type="number" min="1" step="1" value="'+esc(set.targetOverride??'')+'"></label></div><div style="margin-top:16px"><button type="button" class="btn danger" data-action="confirm-delete" data-kind="set" data-set="'+esc(set.id)+'">Delete master set</button></div>':'')+formActions()+'</form>');
+    }
+    function inlineForm(button, kind, set, cat, sec) {
+      const attrs=' data-form="'+kind+'" data-inline="true" data-set="'+esc(set.id)+'" data-category="'+esc(cat?.id||'')+'" data-section="'+esc(sec?.id||'')+'"';
+      let fields;
+      if(kind==='set') fields='<input name="title" aria-label="Set title" required value="'+esc(set.title)+'"><input name="description" aria-label="Description" value="'+esc(set.description)+'"><input name="completed" aria-label="Completed override" type="number" min="0" step="1" placeholder="Auto completed" value="'+esc(set.completedOverride??'')+'"><input name="target" aria-label="Target override" type="number" min="1" step="1" placeholder="Auto target" value="'+esc(set.targetOverride??'')+'"><button type="button" class="btn danger" data-action="edit-set" data-set="'+esc(set.id)+'">Manage</button>';
+      else if(kind==='section') fields='<input name="name" aria-label="Section name" required placeholder="Section name" value="'+esc(sec?.name||'')+'"><input name="completed" aria-label="Completed" type="number" min="0" step="1" required value="'+(sec?.completed??0)+'"><input name="total" aria-label="Total questions" type="number" min="1" step="1" required value="'+(sec?.total??1)+'">'+(sec?'<button type="button" class="btn danger" data-action="manage-section" data-set="'+esc(set.id)+'" data-category="'+esc(cat.id)+'" data-section="'+esc(sec.id)+'">Manage</button>':'');
+      else fields='<input name="name" aria-label="Category name" required placeholder="Category name">';
+      const form='<form class="inline-form"'+attrs+'>'+fields+'<button type="submit" class="btn primary">Save</button><button type="button" class="btn" data-action="cancel-inline">Cancel</button></form>';
+      const container=kind==='set' ? button.closest('.set-card, .dashboard') : sec ? button.closest('.section-card') : button.parentElement;
+      container.insertAdjacentHTML('beforeend',form);
+      button.disabled=true; container.querySelector('form[data-inline]:last-child input').focus();
+    }
+    function categoryForm(set,cat) { modal(cat?'Edit category':'New category','<form data-form="category" data-set="'+esc(set.id)+'" data-category="'+esc(cat?.id||'')+'"><label>Category name<input name="name" required maxlength="200" value="'+esc(cat?.name||'')+'"></label>'+(cat?'<div style="margin-top:16px"><button type="button" class="btn danger" data-action="confirm-delete" data-kind="category" data-set="'+esc(set.id)+'" data-category="'+esc(cat.id)+'">Delete category</button></div>':'')+formActions()+'</form>'); }
+    function sectionForm(set,cat,sec) { modal(sec?'Edit section':'New section','<form data-form="section" data-set="'+esc(set.id)+'" data-category="'+esc(cat.id)+'" data-section="'+esc(sec?.id||'')+'"><label>Section name<input name="name" required maxlength="200" value="'+esc(sec?.name||'')+'"></label><div class="row"><label class="grow">Completed<input name="completed" type="number" min="0" step="1" required value="'+(sec?.completed??0)+'"></label><label class="grow">Total questions<input name="total" type="number" min="1" step="1" required value="'+(sec?.total??1)+'"></label></div>'+(sec?'<div style="margin-top:16px"><button type="button" class="btn danger" data-action="confirm-delete" data-kind="section" data-set="'+esc(set.id)+'" data-category="'+esc(cat.id)+'" data-section="'+esc(sec.id)+'">Delete section</button></div>':'')+formActions()+'</form>'); }
+    function parseRows(text) {
+      const groups=[]; let current=null;
+      function add(name,total) { if(!current){current={name:'General',sections:[]};groups.push(current);} current.sections.push({name:name.trim(),total:Math.max(1,number(total,1))}); }
+      function group(name) { current=groups.find(g=>g.name===name) || {name,sections:[]}; if(!groups.includes(current)) groups.push(current); }
+      function columns(line) { const result=[]; let value='', quoted=false; for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(quoted&&line[i+1]==='"'){value+='"';i++;}else quoted=!quoted;}else if((c===','||c==='\t')&&!quoted){result.push(value.trim());value='';}else value+=c;}result.push(value.trim());return result; }
+      for (let line of text.split(/\r?\n/)) {
+        line=line.trim(); if(!line) continue;
+        const cols=columns(line);
+        if (/^(category|section|topic|name)$/i.test(cols[0]) && cols.some(c=>/^(count|questions|total|section|topic)$/i.test(c))) continue;
+        if(cols.length>=3 && /^\d+$/.test(cols[2])) { group(cols[0]||'General'); if(cols[1]) add(cols[1],cols[2]); continue; }
+        if(cols.length===2 && /^\d+$/.test(cols[1])) { if(cols[0]) add(cols[0],cols[1]); continue; }
+        const match=line.match(/^(.*?)\s*(?::\s*(\d+)|\(\s*(\d+)\s*(?:questions?)?\s*\))\s*$/i);
+        if(match && match[1].trim()) { add(match[1],match[2]||match[3]); continue; }
+        group(line.replace(/^#{1,6}\s*/, '').replace(/:\s*$/, '').trim() || 'General');
+      }
+      return groups.filter(g=>g.sections.length);
+    }
+    function importPreview() { const text=$('#import-text').value, groups=parseRows(text), sections=groups.flatMap(g=>g.sections); $('#import-preview').innerHTML='<strong>'+groups.length+' categories · '+sections.length+' sections · '+sections.reduce((n,s)=>n+s.total,0)+' questions</strong>'+groups.map(g=>'<div>'+esc(g.name)+': '+g.sections.map(s=>esc(s.name)+' ('+s.total+')').join(', ')+'</div>').join(''); }
+    function importer() { modal('Import a master set','<p class="muted">Upload or paste a CSV or structured list of categories, sections, and question counts.</p><form data-form="import"><label>Master set title<input name="title" required value="Imported master set"></label><label>Upload a file<input type="file" id="import-file" accept=".csv,.txt,.tsv,.md"></label><label>List<textarea id="import-text" rows="8" placeholder="Category, Section, Count&#10;Unit 1, Introduction, 5"></textarea></label><div class="preview" id="import-preview"></div><div class="actions"><button type="button" class="btn" data-action="close-modal">Cancel</button><button class="btn primary" type="submit">Create master set</button></div></form>'); importPreview(); }
+    function backup() { modal('JSON Backup Export & Restore','<p class="muted">Keep a copy of your progress, or restore a previously exported backup. Restoring replaces the current data.</p><div class="row wrap" style="margin-top:16px"><button class="btn" data-action="download">Download JSON</button><button class="btn" data-action="copy">Copy JSON</button></div><label>Restore from file<input type="file" id="backup-file" accept=".json,application/json"></label><label>Or paste JSON<textarea id="backup-text" rows="8" placeholder="Paste backup JSON here"></textarea></label><div class="actions"><button class="btn" data-action="close-modal">Cancel</button><button class="btn primary" data-action="restore">Restore backup</button></div>'); }
+    function inspect(t) { modal('Trophy card','<div class="row wrap" style="align-items:flex-start;margin-top:16px"><div style="width:190px;flex:none">'+trophyCard(t)+'</div><div class="grow"><div class="eyebrow">'+esc(t.rarity)+' trophy</div><h2>'+esc(t.title)+'</h2><p class="muted">'+esc(t.masterSetTitle||'Master set')+'</p><p style="margin-top:14px"><strong>'+t.points+' points</strong></p><p class="muted small">Unlocked '+esc(t.unlockedAt?new Date(t.unlockedAt).toLocaleString():'—')+'</p><button class="btn primary" style="margin-top:20px" data-action="open-set" data-set="'+esc(t.masterSetId||'')+'" '+(!findSet(t.masterSetId)?'disabled':'')+'>Open master set →</button></div></div>'); }
+    function readFile(file, callback) { if(!file) return; const reader=new FileReader(); reader.onload=()=>callback(String(reader.result)); reader.onerror=()=>toast('Could not read the file.'); reader.readAsText(file); }
+    document.addEventListener('input', event=>{
+      const el=event.target;
+      if(el.id==='import-text') importPreview();
+      if(el.dataset.control && el.tagName==='INPUT') { const start=el.selectionStart; state[el.dataset.control]=el.value; save(); render(); const replacement=$('[data-control="'+el.dataset.control+'"]'); if(replacement){replacement.focus(); replacement.setSelectionRange(start,start);} }
+    });
+    document.addEventListener('change', event=>{
+      const el=event.target;
+      if(el.dataset.control && el.tagName==='SELECT') {state[el.dataset.control]=el.value;save();render();}
+      if(el.id==='import-file') readFile(el.files[0],text=>{if($('#import-text')){$('#import-text').value=text;importPreview();}});
+      if(el.id==='backup-file') readFile(el.files[0],text=>{if($('#backup-text')) $('#backup-text').value=text;});
+    });
+    document.addEventListener('click', async event=>{
+      const button=event.target.closest('[data-action]'); if(!button) { if(event.target.classList.contains('modal-backdrop')) closeModal(); return; }
+      const action=button.dataset.action, set=findSet(button.dataset.set), cat=findCategory(set,button.dataset.category), sec=findSection(cat,button.dataset.section);
+      if(action==='tab'){state.activeTab=button.dataset.value;save();render();}
+      else if(action==='theme'){state.theme=state.theme==='dark'?'light':'dark';save();render();}
+      else if(action==='control'){state[button.dataset.control]=button.dataset.value;save();render();}
+      else if(action==='dismiss'){state.dismissedWelcomeBanner=true;save();render();}
+      else if(action==='open-set' && set){state.activeTab='sets';state.activeMasterSetId=set.id;state.lastActiveMasterSetId=set.id;closeModal();save();render();}
+      else if(action==='back'){state.activeMasterSetId=null;save();render();}
+      else if(action==='count' && set && cat && sec) changeSection(set,cat,sec,Number(button.dataset.value));
+      else if(action==='sync' && set){set.completedOverride=null;set.targetOverride=null;touch(set);achievements(set);save();render();}
+      else if(action==='new-set') setForm();
+      else if(action==='edit-set' && set) setForm(set);
+      else if(action==='inline-set' && set) inlineForm(button,'set',set);
+      else if(action==='cancel-inline') render();
+      else if(action==='new-category' && set) inlineForm(button,'category',set);
+      else if(action==='edit-category' && cat) categoryForm(set,cat);
+      else if(action==='new-section' && cat) inlineForm(button,'section',set,cat);
+      else if(action==='edit-section' && sec) inlineForm(button,'section',set,cat,sec);
+      else if(action==='manage-section' && sec) sectionForm(set,cat,sec);
+      else if(action==='import') importer();
+      else if(action==='backup') backup();
+      else if(action==='close-modal') closeModal();
+      else if(action==='inspect'){const t=state.trophies.find(t=>t.id===button.dataset.trophy);if(t) inspect(t);}
+      else if(action==='confirm-delete') { button.outerHTML='<span class="row wrap"><span>Are you sure?</span><button type="button" class="btn danger" data-action="delete" data-kind="'+esc(button.dataset.kind)+'" data-set="'+esc(button.dataset.set||'')+'" data-category="'+esc(button.dataset.category||'')+'" data-section="'+esc(button.dataset.section||'')+'">Yes, delete</button><button type="button" class="btn" data-action="cancel-delete">Cancel</button></span>'; }
+      else if(action==='cancel-delete') { if(sec) sectionForm(set,cat,sec); else if(cat) categoryForm(set,cat); else if(set) setForm(set); }
+      else if(action==='delete' && set) {
+        if(button.dataset.kind==='section'&&cat&&sec) {cat.sections=cat.sections.filter(x=>x.id!==sec.id);touch(set,cat);achievements(set,cat);}
+        else if(button.dataset.kind==='category'&&cat) {set.categories=set.categories.filter(x=>x.id!==cat.id);touch(set);achievements(set);}
+        else if(button.dataset.kind==='set'){state.masterSets=state.masterSets.filter(x=>x.id!==set.id);if(state.activeMasterSetId===set.id)state.activeMasterSetId=null;if(state.lastActiveMasterSetId===set.id)state.lastActiveMasterSetId=null;}
+        closeModal();save();render();
+      }
+      else if(action==='download'){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}), url=URL.createObjectURL(blob), a=document.createElement('a');a.href=url;a.download='progress-tracker-'+now().replace(/[:.]/g,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+      else if(action==='copy'){try{await navigator.clipboard.writeText(JSON.stringify(state,null,2));toast('Backup copied to clipboard.');}catch(e){toast('Clipboard unavailable. Download your backup instead.');}}
+      else if(action==='restore'){try{const data=JSON.parse($('#backup-text').value);if(!data||!Array.isArray(data.masterSets))throw new Error('Backup must contain a masterSets array.');state=normalize(data);closeModal();save();render();toast('Backup restored.');}catch(e){toast('Invalid backup: '+e.message);}}
+    });
+    document.addEventListener('submit', event=>{
+      const form=event.target; if(!form.dataset.form) return; event.preventDefault();
+      const values=new FormData(form), kind=form.dataset.form, set=findSet(form.dataset.set), cat=findCategory(set,form.dataset.category), sec=findSection(cat,form.dataset.section);
+      if(kind==='set') {
+        const title=String(values.get('title')).trim(); if(!title) return;
+        if(set){set.title=title;set.description=String(values.get('description')).trim();set.completedOverride=values.get('completed')===''?null:number(values.get('completed'));set.targetOverride=values.get('target')===''?null:Math.max(1,number(values.get('target'),1));touch(set);achievements(set);}
+        else state.masterSets.push(masterSet(title,String(values.get('description')).trim()));
+      } else if(kind==='category' && set) {
+        const name=String(values.get('name')).trim(); if(!name)return;
+        if(cat){cat.name=name;touch(set,cat);} else {set.categories.push(category(name));touch(set);}
+      } else if(kind==='section' && set && cat) {
+        const name=String(values.get('name')).trim();if(!name)return; const total=Math.max(1,number(values.get('total'),1)), completed=clamp(values.get('completed'),total);
+        const target=sec||section(name,total);target.name=name;target.total=total;target.completed=completed;if(!sec)cat.sections.push(target);touch(set,cat,target);achievements(set,cat,target);
+      } else if(kind==='import') {
+        const groups=parseRows($('#import-text').value), title=String(values.get('title')).trim(); if(!title||!groups.length){toast('Add at least one section with a question count.');return;}
+        state.masterSets.push(masterSet(title,'Imported master set',groups.map(g=>category(g.name,g.sections.map(s=>section(s.name,s.total))))));
+      } else return;
+      closeModal();save();render();
+    });
+    document.addEventListener('focusout', event=>{
+      const form=event.target.closest('form[data-inline]');
+      if(form) setTimeout(()=>{if(form.isConnected && !form.contains(document.activeElement) && !document.querySelector('.modal') && form.checkValidity()) form.requestSubmit();},0);
+    });
+    document.addEventListener('keydown', event=>{if(event.key==='Escape'){if($('#modal-root').innerHTML) closeModal(); else if(event.target.closest('form[data-inline]')) render();}});
+    render();
+  </script>
+</body>
+</html>
