@@ -140,18 +140,34 @@
             box-shadow: 0 10px 40px rgba(217, 119, 6, 0.4), 
                         inset 0 1px 0 rgba(255, 255, 255, 0.4),
                         0 0 30px rgba(217, 119, 6, 0.2);
+            animation: gold-pulse 2s ease-in-out infinite;
         }
 
         .playing-card.gold:hover {
             box-shadow: 0 30px 60px rgba(217, 119, 6, 0.6),
                         inset 0 1px 0 rgba(255, 255, 255, 0.4),
                         0 0 50px rgba(217, 119, 6, 0.4);
+            animation: none;
+            transform: translateY(-16px) rotateZ(0deg) scale(1.08);
+        }
+
+        @keyframes gold-pulse {
+            0%, 100% {
+                box-shadow: 0 10px 40px rgba(217, 119, 6, 0.4), 
+                            inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                            0 0 30px rgba(217, 119, 6, 0.2);
+            }
+            50% {
+                box-shadow: 0 10px 40px rgba(217, 119, 6, 0.5), 
+                            inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                            0 0 50px rgba(217, 119, 6, 0.4);
+            }
         }
 
         .playing-card.mythic {
             background: linear-gradient(135deg, #ff1493 0%, #ff69b4 25%, #ba55d3 50%, #9370db 75%, #ff1493 100%);
             background-size: 400% 400%;
-            animation: holographic 4s ease infinite;
+            animation: holographic 4s ease infinite, mythic-dance 3s ease-in-out infinite;
             border: 2px solid #ff1493;
             box-shadow: 0 10px 40px rgba(255, 20, 147, 0.5), 
                         inset 0 1px 0 rgba(255, 255, 255, 0.3),
@@ -162,6 +178,73 @@
             box-shadow: 0 30px 60px rgba(255, 20, 147, 0.8),
                         inset 0 1px 0 rgba(255, 255, 255, 0.3),
                         0 0 60px rgba(255, 20, 147, 0.5);
+            animation: none;
+            transform: translateY(-16px) rotateZ(0deg) scale(1.09);
+        }
+
+        @keyframes mythic-dance {
+            0%, 100% {
+                transform: translateY(0) rotateZ(-0.5deg);
+            }
+            25% {
+                transform: translateY(-8px) rotateZ(0.5deg);
+            }
+            50% {
+                transform: translateY(0) rotateZ(-0.5deg);
+            }
+            75% {
+                transform: translateY(-8px) rotateZ(0.5deg);
+            }
+        }
+
+        /* Legendary Master Set Cards - Ultimate Rarity */
+        .playing-card.legendary {
+            background: linear-gradient(135deg, #000428 0%, #004e92 25%, #1a7fa0 50%, #004e92 75%, #000428 100%);
+            background-size: 400% 400%;
+            animation: legendaryShimmer 3s ease infinite;
+            border: 3px solid #00d4ff;
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.6), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                        0 0 60px rgba(0, 212, 255, 0.4),
+                        0 0 100px rgba(0, 212, 255, 0.2);
+            position: relative;
+        }
+
+        .playing-card.legendary::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.3), transparent 70%);
+            border-radius: 16px;
+            animation: legendary-shine 3s infinite;
+            pointer-events: none;
+        }
+
+        .playing-card.legendary:hover {
+            box-shadow: 0 30px 70px rgba(0, 212, 255, 1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+                        0 0 80px rgba(0, 212, 255, 0.8),
+                        0 0 150px rgba(0, 212, 255, 0.4);
+            transform: translateY(-16px) rotateZ(0deg) scale(1.1);
+            filter: drop-shadow(0 30px 60px rgba(0, 212, 255, 0.6));
+        }
+
+        @keyframes legendaryShimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes legendary-shine {
+            0% { 
+                transform: translateX(-100%);
+            }
+            50% { 
+                transform: translateX(100%);
+            }
+            100% { 
+                transform: translateX(100%);
+            }
         }
 
         @keyframes holographic {
@@ -185,6 +268,36 @@
         .card-suit {
             font-size: 14px;
             margin: 0 2px;
+        }
+
+        /* Fix text contrast on light card backgrounds */
+        .playing-card.silver .card-corner,
+        .playing-card.silver .card-suit,
+        .playing-card.bronze .card-corner,
+        .playing-card.bronze .card-suit {
+            color: #0f0e17;
+        }
+
+        .playing-card.gold .card-corner,
+        .playing-card.gold .card-suit,
+        .playing-card.silver .text-xs,
+        .playing-card.bronze .text-xs,
+        .playing-card.gold .text-xs {
+            color: #0f0e17;
+        }
+
+        .playing-card.silver .text-3xl,
+        .playing-card.bronze .text-3xl,
+        .playing-card.gold .text-3xl {
+            opacity: 0.6;
+        }
+
+        .playing-card.mythic .card-corner,
+        .playing-card.mythic .card-suit,
+        .playing-card.legendary .card-corner,
+        .playing-card.legendary .card-suit {
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         /* Confetti Canvas */
@@ -452,9 +565,24 @@
             animation: glow 2s ease-in-out infinite;
         }
 
+        .rarity-badge.legendary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0088cc 50%, #004e92 100%);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.6);
+            animation: legendary-glow 2s ease-in-out infinite;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         @keyframes glow {
             0%, 100% { box-shadow: 0 4px 15px rgba(255, 20, 147, 0.5); }
             50% { box-shadow: 0 4px 25px rgba(255, 20, 147, 0.8); }
+        }
+
+        @keyframes legendary-glow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(0, 212, 255, 0.6); }
+            50% { box-shadow: 0 4px 30px rgba(0, 212, 255, 1); }
         }
 
         /* Celebratory animations */
@@ -673,14 +801,16 @@
             }
             if (rarity === 'silver') return 'Q';
             if (rarity === 'gold') return 'K';
-            return '♛';
+            if (rarity === 'mythic') return '♛';
+            return 'MS';
         }
 
         function getSuitForRarity(rarity) {
             if (rarity === 'bronze') return '♣';
             if (rarity === 'silver') return '◆';
             if (rarity === 'gold') return '♠';
-            return '♛';
+            if (rarity === 'mythic') return '♛';
+            return '👑';
         }
 
         function calculateTotalPoints() {
@@ -717,19 +847,21 @@
 
             masterSet.completedAwarded = true;
             const trophy = {
-                id: `trophy-mythic-${masterSet.id}`,
-                type: 'master_sovereign',
-                rarity: 'mythic',
-                title: `✨ Master Sovereign: ${masterSet.title}`,
+                id: `trophy-legendary-${masterSet.id}`,
+                type: 'master_set',
+                rarity: 'legendary',
+                title: `🌟 Master Set Complete: ${masterSet.title}`,
                 masterSetId: masterSet.id,
                 masterSetTitle: masterSet.title,
-                points: 25,
+                categoryName: 'Master Sets',
+                points: 50,
                 earnedAt: new Date().toISOString(),
-                rank: '♛',
-                suit: '♛'
+                rank: 'MS',
+                suit: '👑'
             };
             state.unlockedTrophies.push(trophy);
-            showToast(`🌟 MYTHIC MASTER SOVEREIGN EARNED! +25 bonus points!`);
+            showToast(`⭐ LEGENDARY MASTER SET EARNED! +50 BONUS POINTS! ⭐`);
+            triggerConfetti();
             triggerConfetti();
         }
 
