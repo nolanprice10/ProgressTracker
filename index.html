@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Tracker & Trophy Room</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --dark-bg: #0f0e17;
+            --darker-bg: #0a0a12;
+            --card-bg: #16151e;
+            --card-border: #2a2938;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --bronze: #cd7f32;
+            --silver: #c0c0c0;
+            --gold: #ffd700;
+            --mythic: #ff1493;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html.dark {
+            background: linear-gradient(135deg, #0f0e17 0%, #1a1626 50%, #0f0e17 100%);
+            background-attachment: fixed;
+            color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Trebuchet MS', sans-serif;
+            background-color: var(--dark-bg);
+            color: #e5e7eb;
+            overflow-x: hidden;
+        }
+
+        /* Smooth animations */
+        .transition-fade { transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(12px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-bg { 
+            background-color: var(--card-bg); 
+            border: 1px solid var(--card-border);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .card-hover { transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .card-hover:hover { 
+            background-color: #1f1d2a;
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .accent-btn { 
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        .accent-btn:hover { 
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+        }
+
+        /* ===== PLAYING CARD STYLES ===== */
+        .playing-card {
+            aspect-ratio: 2.5 / 3.5;
+            background-color: #f5f5f5;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.4));
+        }
+
+        .playing-card:hover {
+            transform: translateY(-16px) rotateZ(0deg) scale(1.05);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.6));
+        }
+
+        .playing-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .playing-card:hover::before {
+            opacity: 1;
+            animation: shimmer 0.6s ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        /* Rarity card styles */
+        .playing-card.bronze {
+            background: linear-gradient(135deg, #f4e4c1 0%, #e8d4b0 50%, #d4b896 100%);
+            border: 2px solid #cd7f32;
+        }
+
+        .playing-card.silver {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 50%, #d8d8d8 100%);
+            border: 2px solid #a8a8a8;
+            box-shadow: 0 10px 40px rgba(192, 192, 192, 0.3), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .playing-card.gold {
+            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 50%, #f59e0b 100%);
+            border: 2px solid #d97706;
+            box-shadow: 0 10px 40px rgba(217, 119, 6, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                        0 0 30px rgba(217, 119, 6, 0.2);
+        }
+
+        .playing-card.gold:hover {
+            box-shadow: 0 30px 60px rgba(217, 119, 6, 0.6),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                        0 0 50px rgba(217, 119, 6, 0.4);
+        }
+
+        .playing-card.mythic {
+            background: linear-gradient(135deg, #ff1493 0%, #ff69b4 25%, #ba55d3 50%, #9370db 75%, #ff1493 100%);
+            background-size: 400% 400%;
+            animation: holographic 4s ease infinite;
+            border: 2px solid #ff1493;
+            box-shadow: 0 10px 40px rgba(255, 20, 147, 0.5), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                        0 0 40px rgba(255, 20, 147, 0.3);
+        }
+
+        .playing-card.mythic:hover {
+            box-shadow: 0 30px 60px rgba(255, 20, 147, 0.8),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                        0 0 60px rgba(255, 20, 147, 0.5);
+        }
+
+        @keyframes holographic {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .card-corner {
+            position: absolute;
+            font-size: 11px;
+            font-weight: 900;
+            line-height: 1;
+            pointer-events: none;
+            color: #333;
+        }
+
+        .card-corner.top-left { top: 8px; left: 8px; }
+        .card-corner.bottom-right { bottom: 8px; right: 8px; transform: rotate(180deg); }
+
+        .card-suit {
+            font-size: 14px;
+            margin: 0 2px;
+        }
+
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, var(--card-bg) 0%, #1f1d2a 100%);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            z-index: 40;
+            animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Fanned Deck Spread */
+        .deck-spread {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: -20px;
+            padding: 40px 20px;
+            perspective: 1200px;
+        }
+
+        .deck-card {
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), z-index 0.3s ease;
+        }
+
+        .deck-card:hover {
+            transform: translateY(-50px) rotateZ(0deg) !important;
+            z-index: 1000 !important;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #1f1d2a 100%);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(40px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateY(0); 
+                opacity: 1; 
+            }
+        }
+
+        .inline-edit {
+            padding: 8px 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: #e5e7eb;
+            font-size: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .inline-edit:focus {
+            outline: none;
+            border-color: var(--accent);
+            background-color: rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .progress-fill.updating {
+            animation: progressPulse 0.6s ease-out;
+        }
+
+        @keyframes progressPulse {
+            0% {
+                box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(100, 200, 255, 0.6);
+            }
+            100% {
+                box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            }
+        }
+
+        /* Button styling and animations */
+        .increment-btn, .decrement-btn, .plus-five-btn, .complete-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: 1px solid #3b82f6;
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        .increment-btn:hover, .decrement-btn:hover, .plus-five-btn:hover, .complete-btn:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            border-color: #60a5fa;
+        }
+
+        .increment-btn:active, .decrement-btn:active, .plus-five-btn:active, .complete-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Button ripple effect */
+        .increment-btn::before, .decrement-btn::before, .plus-five-btn::before, .complete-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .increment-btn:active::before, .decrement-btn:active::before, .plus-five-btn:active::before, .complete-btn:active::before {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
+        }
+
+        /* Header and Nav */
+        .header-gradient {
+            background: linear-gradient(135deg, var(--darker-bg) 0%, #1a1626 50%, var(--darker-bg) 100%);
+            border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            color: #9ca3af;
+        }
+
+        .nav-tab.active {
+            color: var(--accent);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+            border-radius: 2px;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        /* Rarity badges */
+        .rarity-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .rarity-badge.bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #a85a1f 100%);
+            color: #f9f5f0;
+            box-shadow: 0 4px 15px rgba(205, 127, 50, 0.3);
+        }
+
+        .rarity-badge.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+            color: #0f0e17;
+            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.3);
+        }
+
+        .rarity-badge.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+            color: #0f0e17;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .rarity-badge.mythic {
+            background: linear-gradient(135deg, #ff1493 0%, #ba55d3 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(255, 20, 147, 0.5); }
+            50% { box-shadow: 0 4px 25px rgba(255, 20, 147, 0.8); }
+        }
+
+        /* Celebratory animations */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes scale-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .celebration-popup {
+            animation: bounce 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), scale-pulse 0.6s ease-in-out;
+        }
+
+        /* Trophy grid */
+        .trophy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .trophy-item {
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .trophy-item:hover {
+            transform: scale(1.08) translateY(-8px);
+            filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
+        }
+
+        /* Stat cards */
+        .stat-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-4px);
+        }
+
+        /* Button enhancements */
+        button {
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="flex flex-col min-h-screen"></div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script>
+        // ========== STATE MANAGEMENT & PERSISTENCE ==========
+        const STATE_KEY = 'progressTracker:state:v1';
+        const LAST_VISIT_KEY = 'progressTracker:lastVisit:v1';
+
+        const DEFAULT_STATE = {
+            activeTab: 'sets',
+            activeMasterSetId: null,
+            lastActiveMasterSetId: null,
+            lastSavedAt: new Date().toISOString(),
+            lastSessionAt: null,
+            dismissedWelcomeBanner: false,
+            theme: 'dark',
+            searchQuery: '',
+            sortBy: 'custom',
+            viewMode: 'grid',
+            sectionFilter: 'all',
+            sectionSort: 'default',
+            sectionViewMode: 'grid',
+            rarityFilter: 'all',
+            setFilter: 'all',
+            trophySearch: '',
+            trophySort: 'newest',
+            trophyGroupBy: 'none',
+            trophyViewMode: 'grid',
+            showNewSetModal: false,
+            showImportModal: false,
+            showTrophyModal: false,
+            showBackupModal: false,
+            selectedTrophyId: null,
+            masterSets: [
+                {
+                    id: 'ap-micro-4-6',
+                    title: 'AP Microeconomics (Units 4–6)',
+                    description: 'Complete review of imperfect competition, factor markets, and trade',
+                    completedOverride: null,
+                    targetOverride: null,
+                    completedAwarded: false,
+                    updatedAt: new Date().toISOString(),
+                    categories: [
+                        {
+                            id: 'unit-4',
+                            name: 'Unit 4 | Imperfect Competition',
+                            completedCelebrated: false,
+                            updatedAt: new Date().toISOString(),
+                            sections: [
+                                { id: 's4-1', name: '4.1 Intro to Imperfect Competition', completed: 0, total: 3, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                                { id: 's4-2', name: '4.2 Monopolistic Competition', completed: 0, total: 5, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                                { id: 's4-3', name: '4.3 Oligopoly', completed: 0, total: 4, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                                { id: 's4-4', name: '4.4 Monopoly', completed: 0, total: 6, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                            ]
+                        },
+                        {
+                            id: 'unit-5',
+                            name: 'Unit 5 | Factor Markets',
+                            completedCelebrated: false,
+                            updatedAt: new Date().toISOString(),
+                            sections: [
+                                { id: 's5-1', name: '5.1 Factor Markets Overview', completed: 0, total: 3, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                                { id: 's5-2', name: '5.2 Labor Markets', completed: 0, total: 5, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                                { id: 's5-3', name: '5.3 Capital & Natural Resources', completed: 0, total: 4, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                            ]
+                        },
+                        {
+                            id: 'unit-6',
+                            name: 'Unit 6 | International Trade',
+                            completedCelebrated: false,
+                            updatedAt: new Date().toISOString(),
+                            sections: [
+                                { id: 's6-1', name: '6.1 Comparative Advantage', completed: 0, total: 4, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                                { id: 's6-2', name: '6.2 Trade Effects & Policy', completed: 0, total: 5, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                                { id: 's6-3', name: '6.3 Exchange Rates', completed: 0, total: 4, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    id: 'practice-45',
+                    title: '45-Question Practice Set',
+                    description: 'Comprehensive mock exam covering all major topics',
+                    completedOverride: null,
+                    targetOverride: null,
+                    completedAwarded: false,
+                    updatedAt: new Date().toISOString(),
+                    categories: [
+                        {
+                            id: 'practice-misc',
+                            name: 'Mixed Topics',
+                            completedCelebrated: false,
+                            updatedAt: new Date().toISOString(),
+                            sections: [
+                                { id: 'p1', name: 'Part 1: Supply & Demand', completed: 0, total: 15, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                                { id: 'p2', name: 'Part 2: Producer & Consumer Surplus', completed: 0, total: 12, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                                { id: 'p3', name: 'Part 3: Market Structures & Regulations', completed: 0, total: 18, trophyAwarded: false, completedAt: null, updatedAt: new Date().toISOString() },
+                            ]
+                        },
+                    ]
+                }
+            ],
+            unlockedTrophies: []
+        };
+
+        let state = loadState();
+        let saveTimeout;
+
+        function loadState() {
+            try {
+                const prevVisit = localStorage.getItem(LAST_VISIT_KEY);
+                const saved = localStorage.getItem(STATE_KEY);
+                const loaded = saved ? JSON.parse(saved) : { ...DEFAULT_STATE };
+                loaded.lastSessionAt = prevVisit || null;
+                localStorage.setItem(LAST_VISIT_KEY, new Date().toISOString());
+                return loaded;
+            } catch (e) {
+                console.error('Failed to load state:', e);
+                return { ...DEFAULT_STATE };
+            }
+        }
+
+        function saveState() {
+            try {
+                state.lastSavedAt = new Date().toISOString();
+                localStorage.setItem(STATE_KEY, JSON.stringify(state));
+                render();
+            } catch (e) {
+                console.error('Failed to save state:', e);
+            }
+        }
+
+        function debouncedSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveState, 500);
+        }
+
+        // ========== TROPHY & POINTS LOGIC ==========
+        function getRarityForQuestionCount(count) {
+            if (count >= 7) return 'gold';
+            if (count >= 4) return 'silver';
+            return 'bronze';
+        }
+
+        function getRankForRarity(rarity, count) {
+            if (rarity === 'bronze') {
+                const val = Math.min(count, 3);
+                return ['I', 'II', 'III'][val - 1];
+            }
+            if (rarity === 'silver') return 'Q';
+            if (rarity === 'gold') return 'K';
+            return '♛';
+        }
+
+        function getSuitForRarity(rarity) {
+            if (rarity === 'bronze') return '♣';
+            if (rarity === 'silver') return '◆';
+            if (rarity === 'gold') return '♠';
+            return '♛';
+        }
+
+        function calculateTotalPoints() {
+            return state.unlockedTrophies.reduce((sum, t) => sum + t.points, 0);
+        }
+
+        function awardSectionTrophy(section, masterSetId, masterSetTitle, categoryName) {
+            if (section.trophyAwarded || section.completed < section.total || section.total === 0) return;
+            
+            section.trophyAwarded = true;
+            const rarity = getRarityForQuestionCount(section.total);
+            const trophy = {
+                id: `trophy-${masterSetId}-${section.id}`,
+                type: 'section',
+                rarity,
+                title: section.name,
+                masterSetId,
+                masterSetTitle,
+                categoryName,
+                points: section.total,
+                earnedAt: new Date().toISOString(),
+                rank: getRankForRarity(rarity, section.total),
+                suit: getSuitForRarity(rarity)
+            };
+            state.unlockedTrophies.push(trophy);
+            showToast(`🏆 Earned ${rarity.toUpperCase()} Trophy!`);
+        }
+
+        function awardMasterSovereign(masterSet) {
+            if (masterSet.completedAwarded) return;
+            const totalCompleted = calculateMasterSetCompleted(masterSet);
+            const totalQuestions = calculateMasterSetTotal(masterSet);
+            if (totalCompleted < totalQuestions || totalQuestions === 0) return;
+
+            masterSet.completedAwarded = true;
+            const trophy = {
+                id: `trophy-mythic-${masterSet.id}`,
+                type: 'master_sovereign',
+                rarity: 'mythic',
+                title: `✨ Master Sovereign: ${masterSet.title}`,
+                masterSetId: masterSet.id,
+                masterSetTitle: masterSet.title,
+                points: 25,
+                earnedAt: new Date().toISOString(),
+                rank: '♛',
+                suit: '♛'
+            };
+            state.unlockedTrophies.push(trophy);
+            showToast(`🌟 MYTHIC MASTER SOVEREIGN EARNED! +25 bonus points!`);
+            triggerConfetti();
+        }
+
+        // ========== CALCULATION HELPERS ==========
+        function calculateMasterSetTotal(masterSet) {
+            return masterSet.categories.reduce((sum, cat) => 
+                sum + cat.sections.reduce((s, sec) => s + sec.total, 0), 0
+            );
+        }
+
+        function calculateMasterSetCompleted(masterSet) {
+            return masterSet.categories.reduce((sum, cat) =>
+                sum + cat.sections.reduce((s, sec) => s + sec.completed, 0), 0
+            );
+        }
+
+        function calculateCategoryTotal(category) {
+            return category.sections.reduce((sum, sec) => sum + sec.total, 0);
+        }
+
+        function calculateCategoryCompleted(category) {
+            return category.sections.reduce((sum, sec) => sum + sec.completed, 0);
+        }
+
+        function getProgressPercent(completed, total) {
+            return total === 0 ? 0 : Math.round((completed / total) * 100);
+        }
+
+        // ========== SECTION MUTATIONS ==========
+        function incrementSection(masterSetId, categoryId, sectionId) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            const category = masterSet.categories.find(c => c.id === categoryId);
+            if (!category) return;
+            const section = category.sections.find(s => s.id === sectionId);
+            if (!section || section.completed >= section.total) return;
+
+            section.completed++;
+            section.updatedAt = new Date().toISOString();
+            category.updatedAt = new Date().toISOString();
+            masterSet.updatedAt = new Date().toISOString();
+
+            // Render immediately for smooth feedback
+            render();
+            
+            // Trigger progress bar animation
+            setTimeout(() => {
+                const progressBar = document.querySelector(`[data-sec-id="${sectionId}"] .progress-fill`);
+                if (progressBar) {
+                    progressBar.classList.add('updating');
+                    setTimeout(() => progressBar.classList.remove('updating'), 600);
+                }
+            }, 10);
+
+            // Immediate auto-save (no debounce for smooth UX)
+            saveState();
+
+            if (section.completed >= section.total) {
+                section.completedAt = new Date().toISOString();
+                awardSectionTrophy(section, masterSetId, masterSet.title, category.name);
+                triggerConfetti();
+            }
+        }
+
+        function decrementSection(masterSetId, categoryId, sectionId) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            const category = masterSet.categories.find(c => c.id === categoryId);
+            if (!category) return;
+            const section = category.sections.find(s => s.id === sectionId);
+            if (!section || section.completed === 0 || section.completed >= section.total) return;
+
+            section.completed--;
+            section.updatedAt = new Date().toISOString();
+            category.updatedAt = new Date().toISOString();
+            masterSet.updatedAt = new Date().toISOString();
+            
+            // Render immediately
+            render();
+            
+            // Trigger progress bar animation
+            setTimeout(() => {
+                const progressBar = document.querySelector(`[data-sec-id="${sectionId}"] .progress-fill`);
+                if (progressBar) {
+                    progressBar.classList.add('updating');
+                    setTimeout(() => progressBar.classList.remove('updating'), 600);
+                }
+            }, 10);
+            
+            // Immediate auto-save
+            saveState();
+        }
+
+        function addDeltaSection(masterSetId, categoryId, sectionId, delta) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            const category = masterSet.categories.find(c => c.id === categoryId);
+            if (!category) return;
+            const section = category.sections.find(s => s.id === sectionId);
+            if (!section || section.completed >= section.total) return;
+
+            section.completed = Math.min(section.total, section.completed + delta);
+            section.updatedAt = new Date().toISOString();
+            category.updatedAt = new Date().toISOString();
+            masterSet.updatedAt = new Date().toISOString();
+
+            // Render immediately
+            render();
+            
+            // Trigger progress bar animation
+            setTimeout(() => {
+                const progressBar = document.querySelector(`[data-sec-id="${sectionId}"] .progress-fill`);
+                if (progressBar) {
+                    progressBar.classList.add('updating');
+                    setTimeout(() => progressBar.classList.remove('updating'), 600);
+                }
+            }, 10);
+
+            // Immediate auto-save
+            saveState();
+
+            if (section.completed >= section.total) {
+                section.completedAt = new Date().toISOString();
+                awardSectionTrophy(section, masterSetId, masterSet.title, category.name);
+                triggerConfetti();
+            }
+        }
+
+        function editSection(masterSetId, categoryId, sectionId, updates) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            const category = masterSet.categories.find(c => c.id === categoryId);
+            if (!category) return;
+            const section = category.sections.find(s => s.id === sectionId);
+            if (!section) return;
+
+            if (updates.name !== undefined) section.name = updates.name;
+            if (updates.completed !== undefined) section.completed = Math.max(0, Math.min(section.total, updates.completed));
+            if (updates.total !== undefined) section.total = Math.max(1, updates.total);
+
+            section.completedAt = section.completed >= section.total ? new Date().toISOString() : null;
+            section.updatedAt = new Date().toISOString();
+            category.updatedAt = new Date().toISOString();
+            masterSet.updatedAt = new Date().toISOString();
+
+            if (section.completed >= section.total && !section.trophyAwarded) {
+                awardSectionTrophy(section, masterSetId, masterSet.title, category.name);
+                triggerConfetti();
+            }
+
+            debouncedSave();
+        }
+
+        function deleteSection(masterSetId, categoryId, sectionId) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            const category = masterSet.categories.find(c => c.id === categoryId);
+            if (!category) return;
+            category.sections = category.sections.filter(s => s.id !== sectionId);
+            masterSet.updatedAt = new Date().toISOString();
+            debouncedSave();
+        }
+
+        // ========== MASTER SET MUTATIONS ==========
+        function createMasterSet(title, description = '', targetOverride = null) {
+            const id = `set-${Date.now()}`;
+            const masterSet = {
+                id,
+                title,
+                description,
+                completedOverride: null,
+                targetOverride: targetOverride ? parseInt(targetOverride) : null,
+                completedAwarded: false,
+                updatedAt: new Date().toISOString(),
+                categories: []
+            };
+            state.masterSets.push(masterSet);
+            debouncedSave();
+            return id;
+        }
+
+        function editMasterSet(masterSetId, updates) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            if (updates.title !== undefined) masterSet.title = updates.title;
+            if (updates.description !== undefined) masterSet.description = updates.description;
+            if (updates.completedOverride !== undefined) {
+                masterSet.completedOverride = updates.completedOverride === null ? null : Math.max(0, parseInt(updates.completedOverride));
+            }
+            if (updates.targetOverride !== undefined) {
+                masterSet.targetOverride = updates.targetOverride === null ? null : Math.max(1, parseInt(updates.targetOverride));
+            }
+            masterSet.updatedAt = new Date().toISOString();
+            debouncedSave();
+        }
+
+        function deleteMasterSet(masterSetId) {
+            state.masterSets = state.masterSets.filter(m => m.id !== masterSetId);
+            if (state.activeMasterSetId === masterSetId) {
+                state.activeMasterSetId = null;
+            }
+            if (state.lastActiveMasterSetId === masterSetId) {
+                state.lastActiveMasterSetId = null;
+            }
+            debouncedSave();
+        }
+
+        function addCategory(masterSetId, name) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            const category = {
+                id: `cat-${Date.now()}`,
+                name,
+                completedCelebrated: false,
+                updatedAt: new Date().toISOString(),
+                sections: []
+            };
+            masterSet.categories.push(category);
+            masterSet.updatedAt = new Date().toISOString();
+            debouncedSave();
+        }
+
+        function editCategory(masterSetId, categoryId, updates) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            const category = masterSet.categories.find(c => c.id === categoryId);
+            if (!category) return;
+            if (updates.name !== undefined) category.name = updates.name;
+            category.updatedAt = new Date().toISOString();
+            masterSet.updatedAt = new Date().toISOString();
+            debouncedSave();
+        }
+
+        function deleteCategory(masterSetId, categoryId) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            masterSet.categories = masterSet.categories.filter(c => c.id !== categoryId);
+            masterSet.updatedAt = new Date().toISOString();
+            debouncedSave();
+        }
+
+        function addSection(masterSetId, categoryId, name, total) {
+            const masterSet = state.masterSets.find(m => m.id === masterSetId);
+            if (!masterSet) return;
+            const category = masterSet.categories.find(c => c.id === categoryId);
+            if (!category) return;
+            const section = {
+                id: `sec-${Date.now()}`,
+                name,
+                completed: 0,
+                total: Math.max(1, parseInt(total) || 1),
+                trophyAwarded: false,
+                completedAt: null,
+                updatedAt: new Date().toISOString()
+            };
+            category.sections.push(section);
+            masterSet.updatedAt = new Date().toISOString();
+            debouncedSave();
+        }
+
+        // ========== CONFETTI ANIMATION ==========
+        const confettiCanvas = document.getElementById('confetti-canvas');
+        const ctx = confettiCanvas.getContext('2d');
+        let confettiPieces = [];
+        let confettiAnimating = false;
+
+        function resizeConfettiCanvas() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+
+        function triggerConfetti() {
+            const count = 50;
+            const x = window.innerWidth / 2;
+            const y = window.innerHeight / 2;
+            const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+            
+            for (let i = 0; i < count; i++) {
+                confettiPieces.push({
+                    x: x + (Math.random() - 0.5) * 100,
+                    y: y + (Math.random() - 0.5) * 100,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10 - 3,
+                    ax: 0,
+                    ay: 0.3,
+                    life: 1,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 8 + 4
+                });
+            }
+            
+            if (!confettiAnimating) {
+                confettiAnimating = true;
+                animateConfetti();
+            }
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            
+            confettiPieces = confettiPieces.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx += p.ax;
+                p.vy += p.ay;
+                p.life -= 0.015;
+                
+                if (p.life > 0) {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x, p.y, p.size, p.size);
+                    return true;
+                }
+                return false;
+            });
+
+            ctx.globalAlpha = 1;
+            
+            if (confettiPieces.length > 0) {
+                requestAnimationFrame(animateConfetti);
+            } else {
+                confettiAnimating = false;
+            }
+        }
+
+        // ========== UI HELPERS ==========
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<div class="flex items-center gap-3"><span class="text-xl">🎉</span><span>${message}</span></div>`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 2700);
+        }
+
+        function formatRelativeTime(isoString) {
+            if (!isoString) return 'never';
+            const date = new Date(isoString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        // ========== RENDERING SYSTEM ==========
+        function render() {
+            const app = document.getElementById('app');
+            app.innerHTML = renderLayout();
+            attachEventListeners();
+        }
+
+        function renderLayout() {
+            return `
+                ${renderHeader()}
+                <main class="flex-1 overflow-y-auto" style="min-height: calc(100vh - 100px);">
+                    ${state.activeTab === 'sets' ? renderSetsTab() : renderTrophiesTab()}
+                </main>
+                ${renderModals()}
+            `;
+        }
+
+        function renderHeader() {
+            const totalCards = state.unlockedTrophies.length;
+            const totalPoints = calculateTotalPoints();
+            
+            return `
+                <header class="header-gradient sticky top-0 z-30">
+                    <div class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
+                        <div class="flex items-center gap-8">
+                            <div class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                                🏆 Trophy Collector
+                            </div>
+                            <div class="flex gap-1">
+                                <button class="tab-btn accent-btn text-white px-5 py-2 rounded-lg font-semibold transition-all" data-tab="sets">
+                                    Master Sets
+                                </button>
+                                <button class="tab-btn text-gray-400 hover:text-white px-5 py-2 rounded-lg font-semibold nav-tab transition-all" data-tab="trophies">
+                                    Trophy Room
+                                    ${totalCards > 0 ? `<span class="ml-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">${totalCards}</span>` : ''}
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-6">
+                            <div class="stat-card px-6 py-3 rounded-lg">
+                                <div class="text-xs text-gray-400 mb-1">TOTAL POINTS</div>
+                                <div class="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text">${totalPoints}</div>
+                            </div>
+                            
+                            <button class="theme-toggle px-4 py-2 hover:bg-opacity-70 rounded-lg text-lg transition-all" title="Toggle theme">
+                                ${state.theme === 'dark' ? '☀️' : '🌙'}
+                            </button>
+                            
+                            <button class="backup-btn px-4 py-2 hover:bg-opacity-70 rounded-lg text-lg transition-all" title="Backup & Restore">
+                                💾
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="max-w-7xl mx-auto px-4 pb-3 text-xs text-gray-500 flex justify-between items-center">
+                        <span class="save-status">Last saved: ${formatRelativeTime(state.lastSavedAt)}</span>
+                        <span class="text-gray-600">✨ Collect all the rarities</span>
+                    </div>
+                </header>
+            `;
+        }
+
+        function renderSetsTab() {
+            if (state.activeMasterSetId) {
+                return renderDetailView();
+            }
+            return renderHomepage();
+        }
+
+        function renderHomepage() {
+            const welcomeBanner = !state.dismissedWelcomeBanner && state.lastSessionAt ? `
+                <div class="card-bg rounded-lg p-4 mb-6 border flex items-center justify-between">
+                    <div>
+                        <div class="font-semibold">Welcome back — Progress restored!</div>
+                        <div class="text-sm text-gray-400 mt-1">
+                            Last session: ${formatRelativeTime(state.lastSessionAt)} 
+                            | Total questions completed: ${state.unlockedTrophies.reduce((sum, t) => t.type === 'section' ? sum + t.points : sum, 0)}
+                            | Trophy Points: ${calculateTotalPoints()}
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        ${state.lastActiveMasterSetId ? `
+                            <button class="resume-btn accent-btn text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                Resume Last Set
+                            </button>
+                        ` : ''}
+                        <button class="dismiss-banner-btn px-3 py-2 rounded-lg hover:bg-opacity-50 text-sm">Dismiss</button>
+                    </div>
+                </div>
+            ` : '';
+
+            const totalCompleted = state.masterSets.reduce((sum, m) => sum + calculateMasterSetCompleted(m), 0);
+            const totalQuestions = state.masterSets.reduce((sum, m) => sum + calculateMasterSetTotal(m), 0);
+
+            return `
+                <div class="max-w-7xl mx-auto px-4 py-8">
+                    ${welcomeBanner}
+
+                    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+                        <input type="text" class="search-input flex-1 inline-edit px-4 py-2 rounded-lg" placeholder="Search sets, categories, sections...">
+                        
+                        <select class="sort-select inline-edit px-3 py-2 rounded-lg">
+                            <option value="custom">Custom Order</option>
+                            <option value="progress_desc">Progress (High → Low)</option>
+                            <option value="progress_asc">Progress (Low → High)</option>
+                            <option value="questions_desc">Most Questions</option>
+                            <option value="alpha_asc">Alphabetical (A–Z)</option>
+                            <option value="in_progress_first">In Progress First</option>
+                            <option value="completed_first">Completed First</option>
+                        </select>
+
+                        <div class="flex gap-2">
+                            <button class="view-toggle-btn inline-edit px-3 py-2 rounded-lg" data-view="grid">🔲</button>
+                            <button class="view-toggle-btn inline-edit px-3 py-2 rounded-lg" data-view="list">☰</button>
+                            <button class="view-toggle-btn inline-edit px-3 py-2 rounded-lg" data-view="grouped_status">📊</button>
+                        </div>
+
+                        <button class="new-set-btn accent-btn text-white px-4 py-2 rounded-lg font-medium">+ New Set</button>
+                        <button class="import-btn accent-btn text-white px-4 py-2 rounded-lg font-medium">📥 Import</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        ${state.masterSets.map(m => renderMasterSetCard(m)).join('')}
+                    </div>
+
+                    ${state.masterSets.length === 0 ? `
+                        <div class="text-center py-12">
+                            <div class="text-gray-400 mb-4">No master sets yet. Create one to get started!</div>
+                            <button class="new-set-btn accent-btn text-white px-6 py-3 rounded-lg font-medium">+ Create Master Set</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderMasterSetCard(masterSet) {
+            const completed = masterSet.completedOverride ?? calculateMasterSetCompleted(masterSet);
+            const total = masterSet.targetOverride ?? calculateMasterSetTotal(masterSet);
+            const percent = getProgressPercent(completed, total);
+            const isMythic = completed >= total && total > 0;
+
+            return `
+                <div class="card-bg rounded-lg p-6 card-hover cursor-pointer border open-set-btn" data-id="${masterSet.id}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold">${masterSet.title}</h3>
+                            <p class="text-sm text-gray-400 mt-1">${masterSet.description || 'No description'}</p>
+                        </div>
+                        ${isMythic ? '<span class="text-2xl">👑</span>' : ''}
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm">${percent}%</span>
+                            <span class="text-xs text-gray-400">${completed} / ${total}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-gray-500">
+                        Saved ${formatRelativeTime(masterSet.updatedAt)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDetailView() {
+            const masterSet = state.masterSets.find(m => m.id === state.activeMasterSetId);
+            if (!masterSet) return '';
+
+            const completed = masterSet.completedOverride ?? calculateMasterSetCompleted(masterSet);
+            const total = masterSet.targetOverride ?? calculateMasterSetTotal(masterSet);
+            const percent = getProgressPercent(completed, total);
+
+            return `
+                <div class="max-w-7xl mx-auto px-4 py-8">
+                    <button class="back-btn mb-6 px-4 py-2 rounded-lg hover:bg-opacity-50">← Back to Master Sets</button>
+
+                    <div class="card-bg rounded-lg p-6 mb-8 border sticky top-20 z-20">
+                        <div class="flex justify-between items-center mb-4">
+                            <h1 class="edit-master-title text-2xl font-bold cursor-pointer hover:opacity-70" data-id="${masterSet.id}">
+                                ${masterSet.title}
+                            </h1>
+                            <button class="delete-set-btn text-red-400 hover:text-red-300">🗑️</button>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-lg font-semibold">${percent}%</span>
+                                <span class="text-sm text-gray-400">${completed} / ${total}</span>
+                            </div>
+                            <div class="progress-bar h-3">
+                                <div class="progress-fill" style="width: ${percent}%"></div>
+                            </div>
+                        </div>
+
+                        ${masterSet.completedOverride !== null || masterSet.targetOverride !== null ? `
+                            <button class="sync-btn text-sm text-blue-400 hover:text-blue-300">🔄 Sync to Auto-Sum</button>
+                        ` : ''}
+
+                        <button class="add-category-btn text-sm text-blue-400 hover:text-blue-300 mt-2">+ Add Category</button>
+                    </div>
+
+                    <div class="flex gap-4 mb-6">
+                        <select class="section-filter-select inline-edit px-3 py-2 rounded-lg">
+                            <option value="all">All Sections</option>
+                            <option value="incomplete">Incomplete Only</option>
+                            <option value="completed">Completed Only</option>
+                        </select>
+
+                        <select class="section-sort-select inline-edit px-3 py-2 rounded-lg">
+                            <option value="default">Default Order</option>
+                            <option value="incomplete_first">Incomplete First</option>
+                            <option value="progress_asc">Progress (Low → High)</option>
+                            <option value="progress_desc">Progress (High → Low)</option>
+                            <option value="questions_desc">Most Questions</option>
+                            <option value="alpha_asc">Alphabetical</option>
+                        </select>
+
+                        <div class="flex gap-2 ml-auto">
+                            <button class="section-view-toggle-btn px-3 py-2 rounded-lg inline-edit" data-view="grid">🔲</button>
+                            <button class="section-view-toggle-btn px-3 py-2 rounded-lg inline-edit" data-view="checklist">☑️</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+                        ${masterSet.categories.map(cat => renderCategory(masterSet, cat)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCategory(masterSet, category) {
+            const completed = calculateCategoryCompleted(category);
+            const total = calculateCategoryTotal(category);
+            const percent = getProgressPercent(completed, total);
+
+            let sections = category.sections;
+            if (state.sectionFilter === 'incomplete') {
+                sections = sections.filter(s => s.completed < s.total);
+            } else if (state.sectionFilter === 'completed') {
+                sections = sections.filter(s => s.completed >= s.total);
+            }
+
+            if (state.sectionSort === 'incomplete_first') {
+                sections = sections.sort((a, b) => (a.completed >= a.total) - (b.completed >= b.total));
+            } else if (state.sectionSort === 'progress_asc') {
+                sections = sections.sort((a, b) => getProgressPercent(a.completed, a.total) - getProgressPercent(b.completed, b.total));
+            } else if (state.sectionSort === 'progress_desc') {
+                sections = sections.sort((a, b) => getProgressPercent(b.completed, b.total) - getProgressPercent(a.completed, a.total));
+            } else if (state.sectionSort === 'questions_desc') {
+                sections = sections.sort((a, b) => b.total - a.total);
+            } else if (state.sectionSort === 'alpha_asc') {
+                sections = sections.sort((a, b) => a.name.localeCompare(b.name));
+            }
+
+            return `
+                <div class="card-bg rounded-lg p-6 border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="edit-category-name text-xl font-semibold cursor-pointer hover:opacity-70" data-master-id="${masterSet.id}" data-cat-id="${category.id}">
+                            ${category.name}
+                        </h2>
+                        <button class="delete-category-btn text-red-400 hover:text-red-300" data-master-id="${masterSet.id}" data-cat-id="${category.id}">🗑️</button>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm">${percent}%</span>
+                        <span class="text-xs text-gray-400">${completed} / ${total}</span>
+                    </div>
+
+                    <div class="progress-bar mb-4">
+                        <div class="progress-fill" style="width: ${percent}%"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        ${sections.map(sec => renderSection(masterSet, category, sec)).join('')}
+                    </div>
+
+                    <button class="add-section-btn text-sm text-blue-400 hover:text-blue-300" data-master-id="${masterSet.id}" data-cat-id="${category.id}">
+                        + Add Section
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderSection(masterSet, category, section) {
+            const isLocked = section.completed >= section.total && section.total > 0;
+            const percent = getProgressPercent(section.completed, section.total);
+
+            if (isLocked) {
+                return `
+                    <div class="card-bg rounded-lg p-4 border opacity-60">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-medium">${section.name}</h3>
+                                <div class="text-xs text-gray-400 mt-1">✓ 100% Completed · Trophy Earned</div>
+                            </div>
+                            <span class="text-2xl">🏆</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="card-bg rounded-lg p-4 border">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="font-medium flex-1 edit-section-name cursor-pointer hover:opacity-70" 
+                            data-master-id="${masterSet.id}" data-cat-id="${category.id}" data-sec-id="${section.id}">
+                            ${section.name}
+                        </h3>
+                        <button class="delete-section-btn text-red-400 hover:text-red-300 text-sm" 
+                            data-master-id="${masterSet.id}" data-cat-id="${category.id}" data-sec-id="${section.id}">🗑️</button>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium edit-section-completed cursor-pointer hover:opacity-70" 
+                                data-master-id="${masterSet.id}" data-cat-id="${category.id}" data-sec-id="${section.id}">
+                                ${section.completed}
+                            </span>
+                            <span class="text-xs text-gray-400 edit-section-total cursor-pointer hover:opacity-70"
+                                data-master-id="${masterSet.id}" data-cat-id="${category.id}" data-sec-id="${section.id}">
+                                / ${section.total}
+                            </span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button class="decrement-btn px-2 py-1 rounded text-sm" data-master-id="${masterSet.id}" data-cat-id="${category.id}" data-sec-id="${section.id}">-1</button>
+                        <button class="increment-btn px-2 py-1 rounded text-sm" data-master-id="${masterSet.id}" data-cat-id="${category.id}" data-sec-id="${section.id}">+1</button>
+                        <button class="plus-five-btn px-2 py-1 rounded text-sm" data-master-id="${masterSet.id}" data-cat-id="${category.id}" data-sec-id="${section.id}">+5</button>
+                        <button class="complete-btn px-2 py-1 rounded text-sm ml-auto" data-master-id="${masterSet.id}" data-cat-id="${category.id}" data-sec-id="${section.id}">✓</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTrophiesTab() {
+            const trophies = filterAndSortTrophies();
+            const totalPoints = calculateTotalPoints();
+            const rarityStats = { mythic: 0, gold: 0, silver: 0, bronze: 0 };
+            state.unlockedTrophies.forEach(t => rarityStats[t.rarity]++);
+            
+            return `
+                <div class="max-w-7xl mx-auto px-4 py-8">
+                    <div class="mb-10">
+                        <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Your Collection</h1>
+                        <p class="text-gray-400 mb-6">Track your trophies and celebrate your achievements</p>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="stat-card border-2 border-blue-500/30 hover:border-blue-500/60">
+                                <div class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-2">Total Points</div>
+                                <div class="text-3xl font-black text-transparent bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text">${totalPoints}</div>
+                            </div>
+                            <div class="stat-card border-2 border-blue-500/30 hover:border-blue-500/60">
+                                <div class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-2">Total Cards</div>
+                                <div class="text-3xl font-black text-blue-400">${state.unlockedTrophies.length}</div>
+                            </div>
+                            ${[
+                                { rarity: 'gold', emoji: '👑', color: 'from-yellow-400 to-orange-500' },
+                                { rarity: 'silver', emoji: '◆', color: 'from-gray-300 to-gray-400' },
+                                { rarity: 'bronze', emoji: '⚔️', color: 'from-orange-600 to-orange-700' },
+                                { rarity: 'mythic', emoji: '✨', color: 'from-purple-500 to-pink-500' }
+                            ].map(({ rarity, emoji, color }) => {
+                                const count = rarityStats[rarity];
+                                return `
+                                    <div class="stat-card border-2 border-${rarity === 'gold' ? 'yellow-500/30' : rarity === 'silver' ? 'gray-500/30' : rarity === 'bronze' ? 'orange-500/30' : 'purple-500/30'} hover:border-${rarity === 'gold' ? 'yellow-500/60' : rarity === 'silver' ? 'gray-500/60' : rarity === 'bronze' ? 'orange-500/60' : 'purple-500/60'}">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">${rarity}</span>
+                                            <span class="text-lg">${emoji}</span>
+                                        </div>
+                                        <div class="text-3xl font-black">${count}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-6 mb-8">
+                        <h3 class="font-semibold mb-3 text-lg">🎯 Collection Filters</h3>
+                        <div class="flex flex-col md:flex-row gap-3 flex-wrap">
+                            <input type="text" class="trophy-search flex-1 inline-edit px-4 py-2 rounded-lg min-w-200" placeholder="🔍 Search trophies..." style="min-width: 200px;">
+                            
+                            <select class="rarity-filter-select inline-edit px-3 py-2 rounded-lg">
+                                <option value="all">All Rarities</option>
+                                <option value="mythic">✨ Mythic</option>
+                                <option value="gold">👑 Gold</option>
+                                <option value="silver">◆ Silver</option>
+                                <option value="bronze">⚔️ Bronze</option>
+                            </select>
+
+                            <select class="set-filter-select inline-edit px-3 py-2 rounded-lg">
+                                <option value="all">All Sets</option>
+                                ${state.masterSets.map(m => `<option value="${m.id}">${m.title}</option>`).join('')}
+                            </select>
+
+                            <select class="trophy-sort-select inline-edit px-3 py-2 rounded-lg">
+                                <option value="newest">Newest Unlocked</option>
+                                <option value="rarity_desc">Highest Rarity</option>
+                                <option value="points_desc">Most Points</option>
+                                <option value="name_asc">Name (A–Z)</option>
+                                <option value="set_asc">Master Set</option>
+                            </select>
+
+                            <select class="trophy-group-select inline-edit px-3 py-2 rounded-lg">
+                                <option value="none">No Grouping</option>
+                                <option value="rarity">Group by Rarity</option>
+                                <option value="master_set">Group by Master Set</option>
+                            </select>
+
+                            <div class="flex gap-2 ml-auto">
+                                <button class="trophy-view-toggle-btn px-4 py-2 rounded-lg inline-edit font-semibold" data-view="grid">🔲 Grid</button>
+                                <button class="trophy-view-toggle-btn px-4 py-2 rounded-lg inline-edit font-semibold" data-view="spread">🎴 Spread</button>
+                                <button class="trophy-view-toggle-btn px-4 py-2 rounded-lg inline-edit font-semibold" data-view="binder">📋 Binder</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        ${trophies.length === 0 ? `
+                            <div class="text-center py-16">
+                                <div class="text-5xl mb-4">🏆</div>
+                                <div class="text-xl font-semibold text-gray-300 mb-2">No trophies yet</div>
+                                <div class="text-gray-500">Complete master sets to start building your collection!</div>
+                            </div>
+                        ` : renderTrophyView(trophies)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterAndSortTrophies() {
+            let trophies = [...state.unlockedTrophies];
+
+            if (state.rarityFilter !== 'all') {
+                trophies = trophies.filter(t => t.rarity === state.rarityFilter);
+            }
+
+            if (state.setFilter !== 'all') {
+                trophies = trophies.filter(t => t.masterSetId === state.setFilter);
+            }
+
+            if (state.trophySearch) {
+                const search = state.trophySearch.toLowerCase();
+                trophies = trophies.filter(t => 
+                    t.title.toLowerCase().includes(search) ||
+                    t.masterSetTitle.toLowerCase().includes(search)
+                );
+            }
+
+            if (state.trophySort === 'newest') {
+                trophies.sort((a, b) => new Date(b.earnedAt) - new Date(a.earnedAt));
+            } else if (state.trophySort === 'rarity_desc') {
+                const rarityOrder = { mythic: 4, gold: 3, silver: 2, bronze: 1 };
+                trophies.sort((a, b) => (rarityOrder[b.rarity] || 0) - (rarityOrder[a.rarity] || 0));
+            } else if (state.trophySort === 'points_desc') {
+                trophies.sort((a, b) => b.points - a.points);
+            } else if (state.trophySort === 'name_asc') {
+                trophies.sort((a, b) => a.title.localeCompare(b.title));
+            } else if (state.trophySort === 'set_asc') {
+                trophies.sort((a, b) => a.masterSetTitle.localeCompare(b.masterSetTitle));
+            }
+
+            return trophies;
+        }
+
+        function renderTrophyView(trophies) {
+            if (state.trophyViewMode === 'spread') {
+                return renderDeckSpread(trophies);
+            } else if (state.trophyViewMode === 'binder') {
+                return renderBinderView(trophies);
+            } else {
+                return renderTrophyGrid(trophies);
+            }
+        }
+
+        function renderTrophyGrid(trophies) {
+            if (state.trophyGroupBy === 'none') {
+                return `
+                    <div class="trophy-grid">
+                        ${trophies.map((t, i) => `<div class="trophy-item" style="animation-delay: ${i * 30}ms;">${renderPlayingCard(t)}</div>`).join('')}
+                    </div>
+                `;
+            } else if (state.trophyGroupBy === 'rarity') {
+                const groups = { mythic: [], gold: [], silver: [], bronze: [] };
+                trophies.forEach(t => groups[t.rarity]?.push(t));
+                const rarityEmojis = { mythic: '✨', gold: '👑', silver: '◆', bronze: '⚔️' };
+                return Object.entries(groups).map(([rarity, group]) => {
+                    if (group.length === 0) return '';
+                    return `
+                    <div class="mb-10">
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="text-2xl">${rarityEmojis[rarity]}</span>
+                            <h3 class="text-2xl font-bold uppercase tracking-wider">${rarity} Cards</h3>
+                            <span class="ml-auto rarity-badge ${rarity}">${group.length}</span>
+                        </div>
+                        <div class="trophy-grid">
+                            ${group.map((t, i) => `<div class="trophy-item" style="animation-delay: ${i * 30}ms;">${renderPlayingCard(t)}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            } else if (state.trophyGroupBy === 'master_set') {
+                const groups = {};
+                trophies.forEach(t => {
+                    if (!groups[t.masterSetId]) groups[t.masterSetId] = { title: t.masterSetTitle, cards: [] };
+                    groups[t.masterSetId].cards.push(t);
+                });
+                return Object.values(groups).map(g => `
+                    <div class="mb-10">
+                        <h3 class="text-2xl font-bold mb-6">${g.title}</h3>
+                        <div class="trophy-grid">
+                            ${g.cards.map((t, i) => `<div class="trophy-item" style="animation-delay: ${i * 30}ms;">${renderPlayingCard(t)}</div>`).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderPlayingCard(trophy) {
+            return `
+                <div class="playing-card ${trophy.rarity} cursor-pointer open-trophy-btn transition-all hover:shadow-2xl" data-id="${trophy.id}">
+                    <div class="card-corner top-left">
+                        <div style="letter-spacing: 1px;">${trophy.rank}</div>
+                        <div class="card-suit">${trophy.suit}</div>
+                    </div>
+                    <div class="card-corner bottom-right">
+                        <div style="letter-spacing: 1px;">${trophy.rank}</div>
+                        <div class="card-suit">${trophy.suit}</div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center h-full px-3 py-4 text-center relative z-10">
+                        <div class="text-3xl mb-2 opacity-80">🏆</div>
+                        <div class="text-xs opacity-70 font-semibold mb-1 leading-tight" style="font-size: 10px; max-width: 90%; line-height: 1.2;">${trophy.masterSetTitle}</div>
+                        <div class="text-xs font-bold my-2 leading-tight" style="font-size: 11px; max-width: 95%;">${trophy.title}</div>
+                        <div class="text-sm font-black mt-auto" style="font-size: 13px; letter-spacing: 1px;">${trophy.points}</div>
+                        <div class="text-xs opacity-60 font-semibold">POINTS</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDeckSpread(trophies) {
+            return `
+                <div class="deck-spread">
+                    ${trophies.map((t, i) => {
+                        const angle = (i - Math.floor(trophies.length / 2)) * 5;
+                        const offset = Math.abs(i - Math.floor(trophies.length / 2)) * 10;
+                        return `
+                            <div class="deck-card w-20 h-28" style="transform: rotateZ(${angle}deg) translateY(${offset}px);">
+                                ${renderPlayingCard(t)}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function renderBinderView(trophies) {
+            return `
+                <div class="card-bg rounded-lg border overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="border-b">
+                            <tr>
+                                <th class="text-left p-3">Card</th>
+                                <th class="text-left p-3">Rarity</th>
+                                <th class="text-left p-3">Master Set</th>
+                                <th class="text-right p-3">Points</th>
+                                <th class="text-left p-3">Earned</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${trophies.map(t => `
+                                <tr class="border-b hover:bg-opacity-50 cursor-pointer open-trophy-btn" data-id="${t.id}">
+                                    <td class="p-3">${t.rank} ${t.suit} ${t.title}</td>
+                                    <td class="p-3"><span class="capitalize px-2 py-1 rounded bg-opacity-20" style="background-color: var(--accent);">${t.rarity}</span></td>
+                                    <td class="p-3 text-gray-400">${t.masterSetTitle}</td>
+                                    <td class="p-3 text-right font-semibold">${t.points}</td>
+                                    <td class="p-3 text-gray-400">${formatRelativeTime(t.earnedAt)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderModals() {
+            return `
+                ${state.showNewSetModal ? renderNewSetModal() : ''}
+                ${state.showImportModal ? renderImportModal() : ''}
+                ${state.showTrophyModal ? renderTrophyModal() : ''}
+                ${state.showBackupModal ? renderBackupModal() : ''}
+            `;
+        }
+
+        function renderNewSetModal() {
+            return `
+                <div class="modal-overlay" id="new-set-modal">
+                    <div class="modal-content">
+                        <h2 class="text-xl font-bold mb-4">Create New Master Set</h2>
+                        <input type="text" class="new-set-title inline-edit w-full px-4 py-2 rounded-lg mb-3" placeholder="Master Set Title">
+                        <input type="text" class="new-set-desc inline-edit w-full px-4 py-2 rounded-lg mb-3" placeholder="Description (optional)">
+                        <input type="number" class="new-set-goal inline-edit w-full px-4 py-2 rounded-lg mb-4" placeholder="Target goal (optional)" min="1">
+                        <div class="flex gap-2">
+                            <button class="confirm-new-set accent-btn text-white px-4 py-2 rounded-lg font-medium flex-1">Create</button>
+                            <button class="cancel-modal px-4 py-2 rounded-lg flex-1">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderImportModal() {
+            return `
+                <div class="modal-overlay" id="import-modal">
+                    <div class="modal-content max-w-2xl">
+                        <h2 class="text-xl font-bold mb-4">Import Master Set</h2>
+                        <textarea class="import-text inline-edit w-full px-4 py-2 rounded-lg mb-3 h-40" placeholder="Paste CSV, TSV, or structured text here..."></textarea>
+                        <input type="file" class="import-file inline-edit w-full px-4 py-2 rounded-lg mb-4" accept=".csv,.txt,.tsv,.md">
+                        <div id="import-preview" class="mb-4 p-4 card-bg rounded-lg border">
+                            <div class="text-sm text-gray-400">Preview will appear here...</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="confirm-import accent-btn text-white px-4 py-2 rounded-lg font-medium flex-1">Import</button>
+                            <button class="cancel-modal px-4 py-2 rounded-lg flex-1">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTrophyModal() {
+            const trophy = state.unlockedTrophies.find(t => t.id === state.selectedTrophyId);
+            if (!trophy) return '';
+
+            return `
+                <div class="modal-overlay" id="trophy-modal">
+                    <div class="modal-content max-w-md">
+                        <div class="flex justify-center mb-8">
+                            <div class="w-40 h-56 trophy-item">
+                                ${renderPlayingCard(trophy)}
+                            </div>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-4 text-center">${trophy.title}</h2>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex items-center justify-between p-3 stat-card">
+                                <span class="text-gray-400">Rarity</span>
+                                <span class="rarity-badge ${trophy.rarity}">${trophy.rarity.toUpperCase()}</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 stat-card">
+                                <span class="text-gray-400">Points Earned</span>
+                                <span class="text-lg font-bold text-blue-400">${trophy.points}</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 stat-card">
+                                <span class="text-gray-400">Master Set</span>
+                                <span class="text-sm font-semibold">${trophy.masterSetTitle}</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 stat-card">
+                                <span class="text-gray-400">Earned</span>
+                                <span class="text-sm">${formatRelativeTime(trophy.earnedAt)}</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="goto-set-btn accent-btn text-white px-4 py-3 rounded-lg font-semibold flex-1">Go to Set</button>
+                            <button class="cancel-modal bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-semibold flex-1 transition-all">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBackupModal() {
+            return `
+                <div class="modal-overlay" id="backup-modal">
+                    <div class="modal-content max-w-2xl">
+                        <h2 class="text-2xl font-bold mb-6">📦 Backup & Restore</h2>
+                        <div class="mb-8">
+                            <h3 class="font-semibold mb-4 text-lg">📥 Export Backup</h3>
+                            <div class="flex gap-3">
+                                <button class="export-json accent-btn text-white px-4 py-3 rounded-lg font-semibold flex-1 transition-all">Download JSON</button>
+                                <button class="copy-json bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-semibold flex-1 transition-all">Copy to Clipboard</button>
+                            </div>
+                        </div>
+                        <div class="mb-8">
+                            <h3 class="font-semibold mb-4 text-lg">🔄 Restore from Backup</h3>
+                            <input type="file" class="restore-file inline-edit w-full px-4 py-2 rounded-lg mb-3" accept=".json">
+                            <textarea class="restore-json inline-edit w-full px-4 py-2 rounded-lg h-32" placeholder="Or paste JSON here..."></textarea>
+                            <button class="restore-backup accent-btn text-white px-4 py-3 rounded-lg font-semibold mt-3 w-full transition-all">Restore</button>
+                        </div>
+                        <button class="cancel-modal bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-semibold w-full transition-all">Close</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function attachEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    state.activeTab = e.target.closest('.tab-btn').dataset.tab;
+                    if (state.activeTab === 'sets') {
+                        state.activeMasterSetId = null;
+                    }
+                    render();
+                });
+            });
+
+            // Theme toggle
+            document.querySelector('.theme-toggle')?.addEventListener('click', () => {
+                state.theme = state.theme === 'dark' ? 'light' : 'dark';
+                document.documentElement.classList.toggle('dark', state.theme === 'dark');
+                debouncedSave();
+            });
+
+            // Backup button
+            document.querySelector('.backup-btn')?.addEventListener('click', () => {
+                state.showBackupModal = !state.showBackupModal;
+                render();
+            });
+
+            // Welcome banner
+            document.querySelector('.dismiss-banner-btn')?.addEventListener('click', () => {
+                state.dismissedWelcomeBanner = true;
+                debouncedSave();
+            });
+
+            document.querySelector('.resume-btn')?.addEventListener('click', () => {
+                if (state.lastActiveMasterSetId) {
+                    state.activeMasterSetId = state.lastActiveMasterSetId;
+                    render();
+                }
+            });
+
+            // Master sets homepage
+            document.querySelectorAll('.open-set-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    state.activeMasterSetId = e.currentTarget.dataset.id;
+                    state.lastActiveMasterSetId = state.activeMasterSetId;
+                    debouncedSave();
+                });
+            });
+
+            document.querySelector('.back-btn')?.addEventListener('click', () => {
+                state.activeMasterSetId = null;
+                render();
+            });
+
+            // New set
+            document.querySelector('.new-set-btn')?.addEventListener('click', () => {
+                state.showNewSetModal = true;
+                render();
+            });
+
+            document.querySelector('.confirm-new-set')?.addEventListener('click', () => {
+                const title = document.querySelector('.new-set-title').value.trim();
+                const desc = document.querySelector('.new-set-desc').value.trim();
+                const goal = document.querySelector('.new-set-goal').value;
+                if (!title) {
+                    showToast('Please enter a title');
+                    return;
+                }
+                createMasterSet(title, desc, goal);
+                state.showNewSetModal = false;
+                render();
+            });
+
+            // Cancel modals
+            document.querySelectorAll('.cancel-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.showNewSetModal = false;
+                    state.showImportModal = false;
+                    state.showTrophyModal = false;
+                    state.showBackupModal = false;
+                    render();
+                });
+            });
+
+            // Import
+            document.querySelector('.import-btn')?.addEventListener('click', () => {
+                state.showImportModal = true;
+                render();
+            });
+
+            document.querySelector('.confirm-import')?.addEventListener('click', () => {
+                const text = document.querySelector('.import-text').value || document.querySelector('.import-file').value;
+                if (!text) {
+                    showToast('Please paste or upload a file');
+                    return;
+                }
+                // Basic CSV parsing - simplified for demo
+                const lines = text.split('\n').filter(l => l.trim());
+                const categories = {};
+                let currentCat = 'General';
+                
+                lines.forEach(line => {
+                    const parts = line.split(/[,\t|]/).map(p => p.trim());
+                    if (parts.length >= 2) {
+                        const last = parts[parts.length - 1];
+                        const count = parseInt(last);
+                        if (!isNaN(count) && count > 0) {
+                            if (parts.length === 3) {
+                                currentCat = parts[0];
+                                if (!categories[currentCat]) categories[currentCat] = [];
+                                categories[currentCat].push({ name: parts[1], count });
+                            } else if (parts.length === 2) {
+                                if (!categories[currentCat]) categories[currentCat] = [];
+                                categories[currentCat].push({ name: parts[0], count });
+                            }
+                        }
+                    }
+                });
+
+                const title = prompt('Enter Master Set title:') || 'Imported Set';
+                const setId = createMasterSet(title);
+                const masterSet = state.masterSets.find(m => m.id === setId);
+                
+                Object.entries(categories).forEach(([catName, sections]) => {
+                    addCategory(setId, catName);
+                    const cat = masterSet.categories[masterSet.categories.length - 1];
+                    sections.forEach(sec => {
+                        addSection(setId, cat.id, sec.name, sec.count);
+                    });
+                });
+
+                state.showImportModal = false;
+                state.activeMasterSetId = setId;
+                render();
+            });
+
+            // Detail view controls
+            document.querySelector('.section-filter-select')?.addEventListener('change', (e) => {
+                state.sectionFilter = e.target.value;
+                render();
+            });
+
+            document.querySelector('.section-sort-select')?.addEventListener('change', (e) => {
+                state.sectionSort = e.target.value;
+                render();
+            });
+
+            document.querySelectorAll('.section-view-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    state.sectionViewMode = e.target.dataset.view;
+                    render();
+                });
+            });
+
+            // Section controls
+            document.querySelectorAll('.increment-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const { masterId: mid, catId: cid, secId: sid } = getDataIds(e.target);
+                    incrementSection(mid, cid, sid);
+                });
+            });
+
+            document.querySelectorAll('.decrement-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const { masterId: mid, catId: cid, secId: sid } = getDataIds(e.target);
+                    decrementSection(mid, cid, sid);
+                });
+            });
+
+            document.querySelectorAll('.plus-five-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const { masterId: mid, catId: cid, secId: sid } = getDataIds(e.target);
+                    addDeltaSection(mid, cid, sid, 5);
+                });
+            });
+
+            document.querySelectorAll('.complete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const { masterId: mid, catId: cid, secId: sid } = getDataIds(e.target);
+                    const masterSet = state.masterSets.find(m => m.id === mid);
+                    const cat = masterSet.categories.find(c => c.id === cid);
+                    const sec = cat.sections.find(s => s.id === sid);
+                    if (sec) addDeltaSection(mid, cid, sid, sec.total - sec.completed);
+                });
+            });
+
+            // Inline edits
+            document.querySelectorAll('.edit-section-name').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    makeEditable(e.target, (newVal) => {
+                        const { masterId: mid, catId: cid, secId: sid } = getDataIds(e.target);
+                        editSection(mid, cid, sid, { name: newVal });
+                    });
+                });
+            });
+
+            document.querySelectorAll('.edit-section-completed').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    makeEditableNumber(e.target, (newVal) => {
+                        const { masterId: mid, catId: cid, secId: sid } = getDataIds(e.target);
+                        editSection(mid, cid, sid, { completed: newVal });
+                    });
+                });
+            });
+
+            document.querySelectorAll('.edit-section-total').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    makeEditableNumber(e.target, (newVal) => {
+                        const { masterId: mid, catId: cid, secId: sid } = getDataIds(e.target);
+                        editSection(mid, cid, sid, { total: newVal });
+                    });
+                });
+            });
+
+            document.querySelectorAll('.edit-category-name').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    makeEditable(e.target, (newVal) => {
+                        editCategory(e.target.dataset.masterId, e.target.dataset.catId, { name: newVal });
+                    });
+                });
+            });
+
+            document.querySelectorAll('.edit-master-title').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    makeEditable(e.target, (newVal) => {
+                        editMasterSet(e.target.dataset.id, { title: newVal });
+                    });
+                });
+            });
+
+            document.querySelectorAll('.add-section-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const masterId = e.target.dataset.masterId;
+                    const categoryId = e.target.dataset.catId;
+                    const name = prompt('Section name:');
+                    if (!name) return;
+                    const count = prompt('Number of questions:');
+                    if (!count) return;
+                    addSection(masterId, categoryId, name, parseInt(count));
+                });
+            });
+
+            document.querySelectorAll('.add-category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const name = prompt('Category name:');
+                    if (!name) return;
+                    addCategory(state.activeMasterSetId, name);
+                });
+            });
+
+            document.querySelectorAll('.delete-section-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (confirm('Delete this section?')) {
+                        const { masterId: mid, catId: cid, secId: sid } = getDataIds(e.target);
+                        deleteSection(mid, cid, sid);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.delete-category-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (confirm('Delete this category?')) {
+                        deleteCategory(e.target.dataset.masterId, e.target.dataset.catId);
+                    }
+                });
+            });
+
+            document.querySelector('.delete-set-btn')?.addEventListener('click', () => {
+                if (confirm('Delete this master set?')) {
+                    deleteMasterSet(state.activeMasterSetId);
+                    state.activeMasterSetId = null;
+                    render();
+                }
+            });
+
+            document.querySelector('.sync-btn')?.addEventListener('click', () => {
+                const masterSet = state.masterSets.find(m => m.id === state.activeMasterSetId);
+                if (masterSet) {
+                    editMasterSet(masterSet.id, { 
+                        completedOverride: null, 
+                        targetOverride: null 
+                    });
+                }
+            });
+
+            // Trophy room
+            document.querySelectorAll('.open-trophy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    state.selectedTrophyId = e.currentTarget.dataset.id;
+                    state.showTrophyModal = true;
+                    render();
+                });
+            });
+
+            document.querySelector('.goto-set-btn')?.addEventListener('click', () => {
+                const trophy = state.unlockedTrophies.find(t => t.id === state.selectedTrophyId);
+                if (trophy) {
+                    state.activeMasterSetId = trophy.masterSetId;
+                    state.activeTab = 'sets';
+                    state.showTrophyModal = false;
+                    render();
+                }
+            });
+
+            document.querySelector('.trophy-search')?.addEventListener('input', (e) => {
+                state.trophySearch = e.target.value;
+                render();
+            });
+
+            document.querySelector('.rarity-filter-select')?.addEventListener('change', (e) => {
+                state.rarityFilter = e.target.value;
+                render();
+            });
+
+            document.querySelector('.set-filter-select')?.addEventListener('change', (e) => {
+                state.setFilter = e.target.value;
+                render();
+            });
+
+            document.querySelector('.trophy-sort-select')?.addEventListener('change', (e) => {
+                state.trophySort = e.target.value;
+                render();
+            });
+
+            document.querySelector('.trophy-group-select')?.addEventListener('change', (e) => {
+                state.trophyGroupBy = e.target.value;
+                render();
+            });
+
+            document.querySelectorAll('.trophy-view-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    state.trophyViewMode = e.target.dataset.view;
+                    render();
+                });
+            });
+
+            // Backup/Restore
+            document.querySelector('.export-json')?.addEventListener('click', () => {
+                const json = JSON.stringify(state, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `progress-tracker-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.querySelector('.copy-json')?.addEventListener('click', () => {
+                const json = JSON.stringify(state, null, 2);
+                navigator.clipboard.writeText(json).then(() => showToast('Copied to clipboard!'));
+            });
+
+            document.querySelector('.restore-backup')?.addEventListener('click', () => {
+                const json = document.querySelector('.restore-json').value;
+                if (!json.trim()) {
+                    showToast('Please paste JSON');
+                    return;
+                }
+                try {
+                    const restored = JSON.parse(json);
+                    if (!Array.isArray(restored.masterSets)) {
+                        showToast('Invalid backup format');
+                        return;
+                    }
+                    state = restored;
+                    localStorage.setItem(STATE_KEY, json);
+                    state.showBackupModal = false;
+                    showToast('✓ Backup restored!');
+                    render();
+                } catch (e) {
+                    showToast('Invalid JSON');
+                }
+            });
+
+            document.querySelector('.restore-file')?.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    const json = await file.text();
+                    document.querySelector('.restore-json').value = json;
+                } catch (e) {
+                    showToast('Failed to read file');
+                }
+            });
+        }
+
+        function makeEditable(el, onSave) {
+            const original = el.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'inline-edit';
+            input.value = original;
+            el.replaceWith(input);
+            input.focus();
+            input.select();
+
+            function save() {
+                if (input.value.trim()) {
+                    onSave(input.value.trim());
+                }
+            }
+
+            input.addEventListener('blur', save);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') save();
+                if (e.key === 'Escape') render();
+            });
+        }
+
+        function makeEditableNumber(el, onSave) {
+            const original = el.textContent;
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'inline-edit';
+            input.value = original;
+            el.replaceWith(input);
+            input.focus();
+            input.select();
+
+            function save() {
+                const val = parseInt(input.value) || 0;
+                onSave(val);
+            }
+
+            input.addEventListener('blur', save);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') save();
+                if (e.key === 'Escape') render();
+            });
+        }
+
+        function getDataIds(el) {
+            const target = el.closest('[data-master-id]');
+            return {
+                masterId: target.dataset.masterId,
+                catId: target.dataset.catId,
+                secId: target.dataset.secId
+            };
+        }
+
+        // ========== INITIALIZATION ==========
+        window.addEventListener('beforeunload', saveState);
+        window.addEventListener('pagehide', saveState);
+        window.addEventListener('visibilitychange', () => {
+            if (document.hidden) saveState();
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === STATE_KEY) {
+                state = JSON.parse(e.newValue);
+                render();
+            }
+        });
+
+        window.addEventListener('resize', resizeConfettiCanvas);
+        resizeConfettiCanvas();
+
+        // Auto-save timer
+        setInterval(() => {
+            render();
+        }, 30000);
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
